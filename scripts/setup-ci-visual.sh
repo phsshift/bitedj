@@ -7,7 +7,7 @@ if [[ "${GITHUB_ACTIONS:-}" != true || "${RUNNER_ENVIRONMENT:-}" != github-hoste
 fi
 mkdir -p reports
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils libasound2-plugins alsa-utils fonts-noto-cjk apparmor
+sudo apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils libasound2-plugins alsa-utils fonts-noto-cjk fonts-inter apparmor
 
 # Canonical's per-executable userns allowance, not a global sysctl change:
 # https://documentation.ubuntu.com/release-notes/24.04/
@@ -51,9 +51,31 @@ import subprocess
 subprocess.run(['aplay', '-q', '-D', 'default', '-t', 'raw', '-f', 'S16_LE',
                 '-r', '48000', '-c', '2'], input=bytes(4800 * 4), check=True, timeout=15)
 PY
+# The skin explicitly requests Inter. Avoid host-dependent fallback fonts and
+# RGB subpixel fringes in offscreen pixel/text-colour assertions.
+export FONTCONFIG_FILE="${RUNNER_TEMP}/bitedj-visual-fonts.conf"
+cat > "$FONTCONFIG_FILE" <<'EOF'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <include ignore_missing="no">/etc/fonts/fonts.conf</include>
+  <match target="font">
+    <edit name="rgba" mode="assign"><const>none</const></edit>
+  </match>
+</fontconfig>
+EOF
+fc-match -f '%{family}\n' Inter > reports/inter-font-match.txt
+python3 - <<'PYFONT'
+from pathlib import Path
+families = Path('reports/inter-font-match.txt').read_text().strip().split(',')
+if 'Inter' not in (family.strip() for family in families):
+    raise SystemExit('Inter font missing: refusing silent font fallback')
+PYFONT
+fc-match -v Inter > reports/inter-font-properties.txt
 fc-list > reports/fonts.txt
 {
     echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
     echo "PULSE_SERVER=$PULSE_SERVER"
     echo "ALSA_CONFIG_PATH=$ALSA_CONFIG_PATH"
+    echo "FONTCONFIG_FILE=$FONTCONFIG_FILE"
 } >> "$GITHUB_ENV"

@@ -398,10 +398,31 @@ bool Runner::checkTextColor(const QJsonObject& step, QString* pError) {
     // The cell as the window paints it, delegates and style sheet included.
     const QRect cellRect = pView->visualRect(index);
     const QPoint topLeft = pView->viewport()->mapTo(m_pMainWindow, cellRect.topLeft());
-    const QImage cell = m_pMainWindow->grab()
-                                .toImage()
+    const auto windowGrab = m_pMainWindow->grab();
+    const QImage cell = windowGrab.toImage()
                                 .copy(QRect(topLeft, cellRect.size()))
                                 .convertToFormat(QImage::Format_RGB32);
+
+    // Keep the exact sampled pixels and their geometry when an assertion
+    // fails. This diagnoses font/scale/crop problems without weakening it.
+    const auto saveFailureEvidence = [&]() {
+        const QString stem = QDir(m_options.outDir).absoluteFilePath(
+                QStringLiteral("text-color-step-%1").arg(m_nextStep));
+        cell.save(stem + QStringLiteral(".cell.png"));
+        windowGrab.save(stem + QStringLiteral(".window.png"));
+        QFile geometry(stem + QStringLiteral(".json"));
+        if (geometry.open(QIODevice::WriteOnly)) {
+            const QJsonObject details{
+                    {QStringLiteral("assertion"), name},
+                    {QStringLiteral("expected"), expected.name()},
+                    {QStringLiteral("x"), topLeft.x()},
+                    {QStringLiteral("y"), topLeft.y()},
+                    {QStringLiteral("width"), cellRect.width()},
+                    {QStringLiteral("height"), cellRect.height()},
+                    {QStringLiteral("grabDevicePixelRatio"), windowGrab.devicePixelRatio()}};
+            geometry.write(QJsonDocument(details).toJson());
+        }
+    };
 
     // The background is the cell's most common colour, the text the most
     // common one well apart from it: antialiased edges blend the two, but at
@@ -434,6 +455,7 @@ bool Runner::checkTextColor(const QJsonObject& step, QString* pError) {
         }
     }
     if (foregroundCount == 0) {
+        saveFailureEvidence();
         m_failures.append(name);
         report(QStringLiteral("%1: FAIL no text drawn in the cell").arg(name));
         return true;
@@ -444,6 +466,7 @@ bool Runner::checkTextColor(const QJsonObject& step, QString* pError) {
             std::abs(actual.green() - expected.green()),
             std::abs(actual.blue() - expected.blue())});
     if (delta > tolerance) {
+        saveFailureEvidence();
         m_failures.append(name);
         report(QStringLiteral("%1: FAIL text is %2, expected %3")
                         .arg(name, actual.name(), expected.name()));

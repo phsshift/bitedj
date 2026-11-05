@@ -92,7 +92,17 @@ jobs:
         with:
           path: ${{ env.CCACHE_DIR }}
           key: merlin-arm64-ccache-v1-${{ github.sha }}
-      - name: Save diagnostics and native artifact
+      - name: Save native diagnostic binary
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-native-${{ github.run_number }}-${{ github.sha }}
+          path: |
+            bitedj-native-arm64.tar.gz
+            reports/SHA256SUMS
+            reports/validation-status.txt
+          if-no-files-found: warn
+      - name: Save diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -101,7 +111,6 @@ jobs:
             reports/
             build/visual-test-output/
             build/Testing/Temporary/
-            bitedj-native-arm64.tar.gz
           if-no-files-found: error
 # Native build checkpoint only. No Click/install/release claim:
 # SDK, Qt platform integration, sandbox and runtime closure still need validation.

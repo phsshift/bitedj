@@ -40,3 +40,33 @@ Local validation PASS: bash syntax, workflow YAML parsing, setup script refusal
 outside GitHub-hosted CI before any mutations. C++ compilation and runtime setup
 NOT TESTED locally; next Actions execution is required. No baseline regenerated,
 no tolerance increased, and no test failure suppressed.
+
+## Third run and font/render diagnostics
+Run: https://github.com/phsshift/bitedj/actions/runs/42041134577
+Commit: 6bd00bf299aa88e000fbc4f396751edabec30604.
+PASS: application/test compilation, virtual-audio/namespace setup, native staging,
+AArch64 ELF check, runner library resolution, installed skin check and cache save.
+Unit XML: 1154 passed, 0 failed, 13 disabled, 47 skipped.
+FAIL: all 11 visual scenarios. Target runtime, Click and physical audio NOT TESTED.
+
+The 249057231-byte artifact download was truncated at 206900892 bytes, so its
+SHA256 did not match; no native binary extracted or used. Connector redownloads
+also encountered transport errors. Recovered 129 complete diagnostic ZIP members
+and checked their ZIP CRC32. This is not full artifact SHA256 verification.
+Reviewed actual/golden beat_grid_lines and actual harmonic_match_browse_off images.
+The no-audio banner is gone. Remaining differences include font metrics, RGB
+subpixel fringes, blank quantize icons and stopped-track position -30.00 vs -30.11.
+Do not attribute every failure to fonts or declare the visuals fixed.
+
+Confirmed source dependency gap: res/skins/BiteDJ/style.qss requests Inter;
+reports/fonts.txt has no Inter family. Add fonts-inter, assert fc-match resolves
+Inter, and use a process-scoped Fontconfig config with rgba=none for offscreen
+text assertions. Ubuntu package source: https://packages.ubuntu.com/source/noble/fonts-inter
+Keep original goldens, thresholds, sampling logic and mandatory test outcomes.
+On text-colour failure, save the exact sampled cell, window and crop geometry to
+help diagnose remaining mismatches without changing the assertion.
+
+Split diagnostics and large native binary into separate Actions artifacts so
+reading logs/images no longer requires downloading a 249 MB archive.
+Local checks: shell syntax, workflow parse and phone refusal guard PASS.
+Inter normalization, C++ diagnostic additions and remaining visual failures await CI.

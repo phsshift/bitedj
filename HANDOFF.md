@@ -13,23 +13,25 @@ GitHub connector can read repositories and create commits/branches in existing r
 it cannot create forks. Fork verified: https://github.com/phsshift/bitedj, parent TeamDeckshark/bitedj.
 Branch ubuntu-touch-merlin created at pinned upstream SHA.
 
-Latest completed run: https://github.com/phsshift/bitedj/actions/runs/42033227856
-Commit b3e5de9db232f27ecbf249c6a0941b452f4fd62a: compilation and MP3 fix PASS;
-1154 tests PASS, 11 visual FAIL, 13 disabled, 47 skipped. No installation artifact
-was staged. Artifact diagnostics downloaded with SHA256 verified; see docs/ci-run-2.json.
+Latest completed run: https://github.com/phsshift/bitedj/actions/runs/42041134577
+Commit: 6bd00bf299aa88e000fbc4f396751edabec30604.
+PASS: compilation, virtual audio, namespace probe, native runner staging/audit,
+compiler cache; 1154 unit tests passed, 0 failed (13 disabled, 47 skipped).
+FAIL: 11 visual scenarios. Native artifact exists on GitHub but local download was
+truncated and FAILED SHA256; no binary used. Recovered CRC-checked diagnostic
+members for analysis only. Evidence: docs/ci-run-3.json and BUILD_REPORT.md.
 
-Next action: await the user's email notification after the visual-environment
-repair is pushed, then inspect that run. Do not automatically poll or monitor.
-Repair adds runner-only virtual PulseAudio/ALSA output, CJK fonts, a named AppArmor
-profile for the visual executable, and fail-closed namespace setup in the harness.
-No goldens/tolerances changed. Additional render differences remain NOT TESTED.
-Native staging now runs after compilation even if tests fail, explicitly recording
-test outcomes; its archive is diagnostic and must not be treated as a release.
-Compiler cache is preserved on test failure to reduce repeat work.
-Current source commit can be read from branch head/CI reports/commit.txt.
-Local syntax/YAML/host-refusal checks PASS; full changes await CI compilation.
-Current session is unrestricted; earlier sandbox findings above are historical.
-No phone audio/system/VPN modifications made. Do not run CI setup on the phone.
+Next action: await the user's email notification after the font/render repair
+is pushed, then inspect that run. Do not poll automatically.
+Repair adds/verifies Inter (required by skin, missing in runner), process-only
+Fontconfig rgba=none, failed text-colour cell/window/crop evidence and separate
+small diagnostics/large native artifacts. No golden, tolerance or assertion changed.
+Remaining failures include stopped position -30.00 vs golden -30.11, blank quantize
+icons and text-colour samples; do not claim fonts explain/fix every mismatch.
+Local shell/YAML/phone-refusal checks PASS. New C++ diagnostics and visual result
+await CI. Read current commit from branch head or reports/commit.txt.
+Current session is unrestricted; initial sandbox findings above are historical.
+No phone audio/system/VPN changes. Never run CI setup on the phone.
 
 Before phone launch: gate poweroff, swaymsg rotation, umount and kiosk OSK supervisor
 operations under a target-specific platform mode; inspect all other process calls.
@@ -42,3 +44,6 @@ Resume reads:
   cat /home/phablet/Documents/Codex/bitedj-merlin/HANDOFF.md
   cat /home/phablet/Documents/Codex/bitedj-merlin/UPSTREAM_SHA
 No rollback required: no phone app/settings/system configuration changed.
+
+## Resume audit — 2026-11-05
+See diagnostics/run3/RESUME_FINDINGS.md. Saved run3 reports now establish unit and visual setup success, with visual comparisons still failing. Full archive SHA256 remains unverified. No Actions polling or phone launch performed.

@@ -8,9 +8,13 @@
 | GitHub account read | PASS | connected account phsshift |
 | Existing accessible BiteDJ fork | PASS | phsshift/bitedj, ubuntu-touch-merlin |
 | ARM64 compilation | PASS | run 42020298377, application and mixxx-test built |
-| Upstream tests, second run | FAIL | 1154 passed, 11 visual failed, 13 disabled, 47 skipped; run 42033227856 |
+| Unit tests, third run | PASS | 1154 passed, 0 failed, 13 disabled, 47 skipped; run 42041134577 |
+| Visual tests, third run | FAIL | 11 scenarios fail pixel/text comparisons |
 | Corrected MP3 reference and visual executable compilation | PASS | run 42033227856 |
-| Visual runner audio/namespace setup | NOT TESTED | repair awaiting CI; local shell syntax and refusal guard PASS |
+| Visual runner audio/namespace setup | PASS | run 42041134577; no-audio banner removed, namespace probe passed |
+| Native runner install audit | PASS | AArch64 ELF, runner libraries, skin; target runtime NOT TESTED |
+| Third-run artifact local SHA256 | FAIL | truncated download; native binary not used |
+| Font/render repair | NOT TESTED | Inter absent in captured font list; new CI validation required |
 | Native audit negative cases | PASS | rejects missing binary and invalid ELF; Python syntax checked |
 | Click package / GUI / both decks | NOT TESTED | no build installed |
 | Internal / External MOTU separation | NOT TESTED | physical measurement required |

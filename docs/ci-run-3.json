@@ -1,0 +1,37 @@
+{
+  "run_id": 42041134577,
+  "run_url": "https://github.com/phsshift/bitedj/actions/runs/42041134577",
+  "commit": "6bd00bf299aa88e000fbc4f396751edabec30604",
+  "compilation": "PASS",
+  "unit_tests": {
+    "passed": 1154,
+    "failed": 0,
+    "disabled": 13,
+    "skipped": 47
+  },
+  "visual_tests": {
+    "passed": 0,
+    "failed": 11
+  },
+  "visual_setup": "PASS",
+  "native_runner_audit": {
+    "elf": "PASS",
+    "runner_dependencies": "PASS",
+    "skins": "PASS",
+    "target_runtime": "NOT TESTED",
+    "hardware": "NOT TESTED"
+  },
+  "artifact_id": 13426045846,
+  "expected_archive_sha256": "c69b9ac1e7a1db8753fca2a73ec72635dc9c7fac4efc35d3c0804507aa02e6b2",
+  "local_archive_sha256": "FAIL: truncated transfer",
+  "native_archive_used": false,
+  "diagnostics_recovery": "129 complete ZIP members recovered and CRC32 verified; this is not whole-artifact SHA256 verification",
+  "findings": [
+    "Skin style.qss requests Inter; runner fonts.txt contains no Inter family.",
+    "Actual images show colour fringes absent in golden; fontconfig normalization remains to validate.",
+    "No-audio banner is gone; removable-drive namespace probe succeeded.",
+    "Stopped deck position differs (actual -30.00, golden -30.11); still unresolved.",
+    "Text-colour assertions still fail; add exact cell/window/geometry evidence, preserve strict assertions."
+  ],
+  "phone_installed": "NOT TESTED"
+}

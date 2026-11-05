@@ -17,3 +17,10 @@ No test version or release published.
 - Abort visual harness when removable-drive isolation fails.
 - Preserve native diagnostic artifacts and compiler cache after test failures.
 - Retain strict screenshot comparisons and mandatory unit/visual test outcomes.
+
+## Font/render diagnostics (unreleased)
+- Record passing unit suite and native runner audit; retain 11 visual failures.
+- Install/verify the skin's Inter font and disable RGB subpixel rendering in CI only.
+- Save failed text-colour cell/window images and crop metadata without changing assertions.
+- Separate small diagnostics from large native archives for reliable downloads.
+- Record truncated artifact SHA256 failure; do not use partial binaries.
