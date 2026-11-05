@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Tests for the Bite DJ drag scrolling of skin Scrollables (the FX parameter
 // list): dragging anywhere on the content scrolls it, a tap still reaches the
 // widget under the finger, and knobs keep their own drag. Covers both input
@@ -8,9 +10,12 @@
 #include <gtest/gtest.h>
 
 #include <QCoreApplication>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QEventPoint>
+#else
+#include <QTouchDevice>
+#endif
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTest>
@@ -111,7 +116,7 @@ class ContentDragScrollerTest : public MixxxTest {
     /// under it, so gestures are given in coordinates of the viewport, which
     /// doesn't move, and mapped into the widget they are sent to.
     QPointF globalPos(int viewportY) const {
-        return m_pArea->viewport()->mapToGlobal(QPointF(10, viewportY));
+        return m_pArea->viewport()->mapToGlobal(QPoint(10, viewportY));
     }
 
     void sendMouse(QWidget* pWidget,
@@ -120,7 +125,7 @@ class ContentDragScrollerTest : public MixxxTest {
             Qt::MouseButton button,
             Qt::MouseButtons buttons) {
         const QPointF global = globalPos(viewportY);
-        const QPointF pos = pWidget->mapFromGlobal(global);
+        const QPointF pos = mixxx::qt::mapFromGlobal(pWidget, global);
         QMouseEvent event(type,
                 pos,
                 pos,
@@ -128,7 +133,7 @@ class ContentDragScrollerTest : public MixxxTest {
                 button,
                 buttons,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(pWidget, &event);
     }
 
@@ -141,13 +146,24 @@ class ContentDragScrollerTest : public MixxxTest {
 
     void sendTouch(QWidget* pWidget, QEvent::Type type, int viewportY) {
         const QPointF global = globalPos(viewportY);
-        const QPointF pos = pWidget->mapFromGlobal(global);
+        const QPointF pos = mixxx::qt::mapFromGlobal(pWidget, global);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         const QEventPoint::State state = type == QEvent::TouchBegin
                 ? QEventPoint::State::Pressed
                 : type == QEvent::TouchEnd ? QEventPoint::State::Released
                                            : QEventPoint::State::Updated;
         QEventPoint point(1, state, pos, global);
         QTouchEvent event(type, m_pTouchDevice, Qt::NoModifier, {point});
+#else
+        const Qt::TouchPointState state = type == QEvent::TouchBegin
+                ? Qt::TouchPointPressed
+                : type == QEvent::TouchEnd ? Qt::TouchPointReleased : Qt::TouchPointMoved;
+        QTouchEvent::TouchPoint point(1);
+        point.setState(state);
+        point.setPos(pos);
+        point.setScreenPos(global);
+        QTouchEvent event(type, m_pTouchDevice, Qt::NoModifier, state, {point});
+#endif
         QCoreApplication::sendEvent(pWidget, &event);
     }
 
@@ -155,7 +171,11 @@ class ContentDragScrollerTest : public MixxxTest {
     std::unique_ptr<QScrollArea> m_pArea;
     QList<RecordingWidget*> m_rows;
     WKnobComposed* m_pKnob = nullptr;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QPointingDevice* m_pTouchDevice = nullptr;
+#else
+    QTouchDevice* m_pTouchDevice = nullptr;
+#endif
 };
 
 TEST_F(ContentDragScrollerTest, MouseDragOnAWidgetScrollsWithoutPressingIt) {

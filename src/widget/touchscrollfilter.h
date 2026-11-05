@@ -1,5 +1,7 @@
 #pragma once
 
+#include "util/qtinputcompat.h"
+
 #include <QEvent>
 #include <QObject>
 #include <QPointF>
@@ -8,7 +10,6 @@
 class QAbstractScrollArea;
 class QEvent;
 class QMouseEvent;
-class QPointingDevice;
 
 /// Scrolls a scroll area by dragging its content, which is how a touch screen
 /// is expected to browse long lists.
@@ -65,7 +66,7 @@ class TouchScrollFilter : public QObject {
     QPointF m_pressScenePos;
     QPointF m_pressGlobalPos;
     Qt::KeyboardModifiers m_pressModifiers;
-    const QPointingDevice* m_pPressDevice;
+    mixxx::qt::MouseDevice m_pressDevice;
 
     QPointF m_lastPos;
     /// Sub-pixel remainder of the movement not yet applied to the scroll bar

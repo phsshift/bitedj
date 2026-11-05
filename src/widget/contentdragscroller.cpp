@@ -1,9 +1,10 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/contentdragscroller.h"
 
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QScrollBar>
 #include <QTouchEvent>
 #include <cmath>
@@ -31,8 +32,7 @@ bool handlesOwnDrag(const QWidget* pWidget) {
 }
 
 QPointF touchGlobalPos(const QTouchEvent* pEvent) {
-    const auto& points = pEvent->points();
-    return points.isEmpty() ? QPointF() : points.first().globalPosition();
+    return mixxx::qt::inputGlobalPosition(pEvent).value_or(QPointF());
 }
 
 } // anonymous namespace
@@ -112,7 +112,7 @@ bool ContentDragScroller::eventFilter(QObject* pWatched, QEvent* pEvent) {
         if (pMouseEvent->button() != Qt::LeftButton || !claims(pWidget)) {
             return false;
         }
-        begin(pWidget, pMouseEvent->globalPosition(), false);
+        begin(pWidget, mixxx::qt::mouseGlobalPosition(pMouseEvent), false);
         pEvent->accept();
         return true;
     }
@@ -120,7 +120,7 @@ bool ContentDragScroller::eventFilter(QObject* pWatched, QEvent* pEvent) {
         if (m_state == State::Idle || m_touch || pWatched != m_pTarget) {
             return false;
         }
-        follow(static_cast<QMouseEvent*>(pEvent)->globalPosition());
+        follow(mixxx::qt::mouseGlobalPosition(static_cast<QMouseEvent*>(pEvent)));
         pEvent->accept();
         return true;
     case QEvent::MouseButtonRelease: {
@@ -188,8 +188,8 @@ void ContentDragScroller::replayTap(bool withRelease) {
     if (!pTarget) {
         return;
     }
-    const QPointF localPos = pTarget->mapFromGlobal(m_pressGlobalPos);
-    const QPointingDevice* pDevice = QPointingDevice::primaryPointingDevice();
+    const QPointF localPos = mixxx::qt::mapFromGlobal(pTarget, m_pressGlobalPos);
+    const auto pDevice = mixxx::qt::mouseDevice();
     m_replaying = true;
     QMouseEvent pressEvent(QEvent::MouseButtonPress,
             localPos,

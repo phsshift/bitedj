@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 #include "mixxxmainwindow.h"
 
 #include <QAbstractItemView>
@@ -6,6 +8,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QKeyEvent>
+#include <QInputMethod>
 #include <QOpenGLContext>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -127,6 +130,17 @@ bool isTextEntryWidget(const QWidget* pWidget) {
 // which sway passes to both of them. Without the file (no OSK, or not the
 // kiosk) this does nothing.
 void requestOnScreenKeyboard(bool show) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    // Let the Lomiri/Maliit input context follow the focused Qt widget.
+    if (auto* input = QGuiApplication::inputMethod()) {
+        if (show) {
+            input->show();
+        } else {
+            input->hide();
+        }
+    }
+    return;
+#else
     const QByteArray runtimeDir = qgetenv("XDG_RUNTIME_DIR");
     if (runtimeDir.isEmpty()) {
         return;
@@ -141,6 +155,7 @@ void requestOnScreenKeyboard(bool show) {
     if (ok && pid > 1) {
         kill(static_cast<pid_t>(pid), show ? SIGUSR2 : SIGUSR1);
     }
+#endif
 }
 #endif
 } // namespace
@@ -1381,13 +1396,13 @@ bool MixxxMainWindow::eventFilter(QObject* obj, QEvent* event) {
         // focus, and refocusing a focused field emits no focusChanged.
         auto* pTarget = qobject_cast<QWidget*>(obj);
         QWidget* pFocus = QApplication::focusWidget();
-        const auto* pPointerEvent = static_cast<QPointerEvent*>(event);
+        const auto position = mixxx::qt::inputGlobalPosition(event);
         if (pTarget && pFocus && pTarget->window() == pFocus->window() &&
                 isTextEntryWidget(pFocus) &&
                 !QApplication::activePopupWidget() &&
-                !pPointerEvent->points().isEmpty()) {
-            const QPointF globalPos = pPointerEvent->points().first().globalPosition();
-            if (pFocus->rect().contains(pFocus->mapFromGlobal(globalPos).toPoint())) {
+                position.has_value()) {
+            const QPointF globalPos = *position;
+            if (pFocus->rect().contains(mixxx::qt::mapFromGlobal(pFocus, globalPos).toPoint())) {
 #ifdef __LINUX__
                 requestOnScreenKeyboard(true);
 #endif

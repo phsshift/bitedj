@@ -42,6 +42,22 @@
 #include "util/versionstore.h"
 
 namespace {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+class DebugExportProcess : public QProcess {
+  public:
+    explicit DebugExportProcess(int nice, QObject* parent)
+            : QProcess(parent), m_nice(nice) {}
+  protected:
+    void setupChildProcess() override {
+        setpgid(0, 0);
+        sched_param param{};
+        sched_setscheduler(0, SCHED_OTHER, &param);
+        setpriority(PRIO_PROCESS, 0, m_nice);
+    }
+  private:
+    int m_nice;
+};
+#endif
 const QString kGroup = QStringLiteral("[System]");
 // Fork-wide preference namespace (distinct from the [System] tab COs above).
 const QString kBiteDj = QStringLiteral("[BiteDJ]");
@@ -795,6 +811,13 @@ int SystemSettings::unloadTracksOnMount(const QString& mountPoint) {
 }
 
 bool SystemSettings::tryUnmount(const QString& mountPoint, QString* pError) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    Q_UNUSED(mountPoint);
+    if (pError) {
+        *pError = tr("Eject this drive from the system file manager");
+    }
+    return false;
+#else
     QProcess umount;
     umount.start(QStringLiteral("umount"), QStringList{mountPoint});
     umount.waitForFinished();
@@ -809,6 +832,7 @@ bool SystemSettings::tryUnmount(const QString& mountPoint, QString* pError) {
         *pError = error;
     }
     return false;
+#endif
 }
 
 QStringList SystemSettings::mountsOnSameUsbDevice(int index) const {
@@ -842,6 +866,17 @@ QStringList SystemSettings::mountsOnSameUsbDevice(int index) const {
 bool SystemSettings::ejectMountPoint(const QString& mountPoint,
         int* pUnloaded,
         QString* pError) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    // Refuse before stopping decks, recordings, or releasing library stores.
+    Q_UNUSED(mountPoint);
+    if (pUnloaded) {
+        *pUnloaded = 0;
+    }
+    if (pError) {
+        *pError = tr("Eject this drive from the system file manager");
+    }
+    return false;
+#endif
     // A recording writing to this drive holds an open file descriptor on it, so
     // the unmount below would fail EBUSY for as long as it runs. Stop it first
     // and let the retry loop at the end of this function cover the close, which
@@ -1247,6 +1282,10 @@ void SystemSettings::onLoadIntoPlayingChanged(double value) {
 }
 
 void SystemSettings::onScreenRotationChanged(double value) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    Q_UNUSED(value);
+    return; // The desktop entry requests landscape; Lomiri owns rotation.
+#else
     const int degrees = value == 180.0 ? 180 : 0;
     m_pConfig->setValue(ConfigKey(kBiteDj, QStringLiteral("screen_rotation")),
             static_cast<double>(degrees));
@@ -1266,12 +1305,19 @@ void SystemSettings::onScreenRotationChanged(double value) {
         notify(tr("Failed to apply screen rotation"),
                 Notifications::Severity::Error);
     }
+#endif
 }
 
 void SystemSettings::onShutdownRequested(double value) {
     if (value == 0.0) {
         return;
     }
+#ifdef BITEDJ_UBUNTU_TOUCH
+    m_pCoShutdownArm->set(0.0);
+    m_pCoShutdown->set(0.0);
+    notify(tr("Use the phone's power menu to shut down"), Notifications::Severity::Info);
+    return;
+#else
     if (Notifications* pNotifications = Notifications::tryInstance()) {
         pNotifications->publishSticky(tr("Shutting down..."),
                 Notifications::Severity::Info);
@@ -1282,9 +1328,15 @@ void SystemSettings::onShutdownRequested(double value) {
         notify(tr("Shutdown command failed to start"),
                 Notifications::Severity::Error);
     }
+#endif
 }
 
 void SystemSettings::exportDebugLogsToRow(int index) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    Q_UNUSED(index);
+    notify(tr("App logs are stored in the application's data folder"), Notifications::Severity::Info);
+    return;
+#endif
     if (index < 0 || index >= m_usbMounts.size()) {
         return;
     }
@@ -1315,7 +1367,11 @@ void SystemSettings::exportDebugLogsToRow(int index) {
     const QString partialFileName = QString(action->partialFileNameTemplate)
                                             .replace(QStringLiteral("{fileName}"), fileName);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     auto* pProcess = new QProcess(this);
+#else
+    auto* pProcess = new DebugExportProcess(action->nice, this);
+#endif
     pProcess->setProgram(action->program);
     pProcess->setArguments(QStringList{QStringLiteral("-c"),
             action->script,
@@ -1326,6 +1382,7 @@ void SystemSettings::exportDebugLogsToRow(int index) {
             action->replaceGlob});
     pProcess->setProcessChannelMode(QProcess::SeparateChannels);
     pProcess->setStandardOutputFile(QProcess::nullDevice());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const int nice = action->nice;
     pProcess->setChildProcessModifier([nice] {
         // Forked from the GUI thread, so the child would otherwise inherit its
@@ -1337,8 +1394,9 @@ void SystemSettings::exportDebugLogsToRow(int index) {
         sched_setscheduler(0, SCHED_OTHER, &param);
         setpriority(PRIO_PROCESS, 0, nice);
     });
+#endif
     connect(pProcess,
-            &QProcess::finished,
+            qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
             this,
             &SystemSettings::onDebugExportFinished);
 

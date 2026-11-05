@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Visual tests for the Bite DJ Settings -> General page: the real
 // settings.xml, styled by the real style.qss, built by the real
 // LegacySkinParser, rendered offscreen at the panel's native 800x480 (the only
@@ -31,7 +33,6 @@
 #include <QLabel>
 #include <QLayout>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QSet>
 #include <QTemporaryDir>
 #include <QTextStream>
@@ -337,7 +338,7 @@ class SettingsGeneralLayoutTest : public MixxxTest,
     // the centre of the button.
     void tap(WPushButton* pButton) {
         const QPointF pos = QRectF(pButton->rect()).center();
-        const QPointF global = pButton->mapToGlobal(pos);
+        const QPointF global = mixxx::qt::mapToGlobal(pButton, pos);
         QMouseEvent press(QEvent::MouseButtonPress,
                 pos,
                 pos,
@@ -345,7 +346,7 @@ class SettingsGeneralLayoutTest : public MixxxTest,
                 Qt::LeftButton,
                 Qt::LeftButton,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(pButton, &press);
         QMouseEvent release(QEvent::MouseButtonRelease,
                 pos,
@@ -354,7 +355,7 @@ class SettingsGeneralLayoutTest : public MixxxTest,
                 Qt::LeftButton,
                 Qt::NoButton,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(pButton, &release);
         layOut();
     }

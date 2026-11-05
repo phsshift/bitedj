@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/wsamplerdrive.h"
 
 #include <QFontMetrics>
@@ -144,7 +146,7 @@ void WSamplerDrive::mouseReleaseEvent(QMouseEvent* e) {
     const bool pressed = m_pressed;
     m_pressed = false;
     if (pressed) {
-        const int index = chipIndexAt(e->globalPosition().toPoint());
+        const int index = chipIndexAt(mixxx::qt::mouseGlobalPosition(e).toPoint());
         if (index >= 0) {
             if (SamplerDrive* pDrive = SamplerDrive::tryInstance()) {
                 // Selecting re-emits drivesChanged, which rebuilds the chips —

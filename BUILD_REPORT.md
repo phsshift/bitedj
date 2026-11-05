@@ -70,3 +70,23 @@ Split diagnostics and large native binary into separate Actions artifacts so
 reading logs/images no longer requires downloading a 249 MB archive.
 Local checks: shell syntax, workflow parse and phone refusal guard PASS.
 Inter normalization, C++ diagnostic additions and remaining visual failures await CI.
+
+## Ubuntu Touch platform and SDK packaging — 2026-11-05
+
+Parent: f16370a493332a6a2f50be6d7f28bd238a5ac94e (Inter/render diagnostics).
+Prepared separate ARM64 Clickable SDK job using Qt5 and a compile-time mobile
+mode. Restored Qt5 support in fork-specific touch/scroll widgets and their
+existing tests. Kept the native Qt6 visual suite and all original goldens.
+
+Mobile first-launch routing selects system audio through app-local ALSA/Pulse;
+logical default/pulse devices are visible. No system audio configuration changes.
+Gated poweroff, swaymsg, umount, kiosk OSK signaling and appliance log export.
+Framework Qt/platform/GPU libraries are not bundled in the target Click.
+
+Local checks: 9 package/launcher tests passed (including missing bridge,
+wrong ELF architecture, missing dependency, wrong source commit and forbidden
+bundled Qt). Shell syntax and phone build-refusal guard passed. Clickable keys,
+enum values and basic types checked against the 8.10.0 project schema; full
+CLI validation and C++ compilation await CI. Compiler, Docker and Clickable
+are absent on this phone; no attempt to install them or buildenv here.
+No target launch, audio playback or MOTU test performed.

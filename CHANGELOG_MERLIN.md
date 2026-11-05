@@ -24,3 +24,9 @@ No test version or release published.
 - Save failed text-colour cell/window images and crop metadata without changing assertions.
 - Separate small diagnostics from large native archives for reliable downloads.
 - Record truncated artifact SHA256 failure; do not use partial binaries.
+
+- Add Qt5 Clickable ARM64 target build, package integrity checks and per-app
+  PulseAudio bridge for the initial built-in sound test.
+- Restore fork-specific touch/scroll compatibility with Qt5 and preserve Qt6.
+- Gate appliance power/eject/rotation/OSK actions under the mobile build mode.
+- Keep native visual tests and all existing goldens unchanged.

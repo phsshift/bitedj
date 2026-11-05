@@ -1,10 +1,11 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/touchscrollfilter.h"
 
 #include <QAbstractItemView>
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QScrollBar>
 #include <cmath>
 
@@ -47,7 +48,7 @@ TouchScrollFilter::TouchScrollFilter(QAbstractScrollArea* pScrollArea)
           m_replayingPress(false),
           m_pressType(QEvent::MouseButtonPress),
           m_pressModifiers(Qt::NoModifier),
-          m_pPressDevice(nullptr),
+          m_pressDevice(mixxx::qt::mouseDevice()),
           m_remainingDy(0) {
     pScrollArea->viewport()->installEventFilter(this);
 }
@@ -82,11 +83,11 @@ bool TouchScrollFilter::handleMousePress(QMouseEvent* pEvent) {
 
     m_state = State::Pending;
     m_pressType = pEvent->type();
-    m_pressPos = pEvent->position();
-    m_pressScenePos = pEvent->scenePosition();
-    m_pressGlobalPos = pEvent->globalPosition();
+    m_pressPos = mixxx::qt::mousePosition(pEvent);
+    m_pressScenePos = mixxx::qt::mouseScenePosition(pEvent);
+    m_pressGlobalPos = mixxx::qt::mouseGlobalPosition(pEvent);
     m_pressModifiers = pEvent->modifiers();
-    m_pPressDevice = pEvent->pointingDevice();
+    m_pressDevice = mixxx::qt::mouseDevice(pEvent);
     m_lastPos = m_pressPos;
     m_remainingDy = 0;
 
@@ -106,7 +107,7 @@ bool TouchScrollFilter::handleMouseMove(QMouseEvent* pEvent) {
         return false;
     }
 
-    const QPointF pos = pEvent->position();
+    const QPointF pos = mixxx::qt::mousePosition(pEvent);
     if (m_state == State::Pending) {
         if (std::abs(pos.y() - m_pressPos.y()) < dragStartDistance()) {
             // Might still become a tap, keep swallowing.
@@ -151,9 +152,7 @@ bool TouchScrollFilter::handleMouseRelease(QMouseEvent* pEvent) {
 }
 
 void TouchScrollFilter::replayPress() {
-    const QPointingDevice* pDevice = m_pPressDevice
-            ? m_pPressDevice
-            : QPointingDevice::primaryPointingDevice();
+    const auto pDevice = m_pressDevice;
     QMouseEvent pressEvent(m_pressType,
             m_pressPos,
             m_pressScenePos,

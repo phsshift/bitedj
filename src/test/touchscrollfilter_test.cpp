@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Tests for the Bite DJ touch scrolling of list views: a press and drag moves
 // the content instead of dragging items out of the view, while a press that
 // doesn't move still reaches the view as an ordinary click.
@@ -8,7 +10,6 @@
 #include <QCoreApplication>
 #include <QHeaderView>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QScrollBar>
 #include <QSignalSpy>
 #include <QStandardItemModel>
@@ -31,11 +32,11 @@ void sendMouse(QWidget* pWidget,
     QMouseEvent event(type,
             pos,
             pos,
-            pWidget->mapToGlobal(pos),
+            mixxx::qt::mapToGlobal(pWidget, pos),
             button,
             buttons,
             Qt::NoModifier,
-            QPointingDevice::primaryPointingDevice());
+            mixxx::qt::mouseDevice());
     QCoreApplication::sendEvent(pWidget, &event);
 }
 

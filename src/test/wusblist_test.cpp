@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Tests for the Bite DJ USB drive list: a press and drag scrolls the rows so
 // more drives than fit the panel can be reached, while a press that doesn't
 // move still arms the Eject button underneath it. The per-row Record button is
@@ -15,7 +17,6 @@
 #include <QCoreApplication>
 #include <QLayout>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -71,7 +72,7 @@ class WUsbListTest : public MixxxTest {
     // Mimics WWidget::event()'s touch translation: the event is delivered to
     // the list itself and carries no held buttons.
     void sendTouchAsMouse(QEvent::Type type, const QPoint& globalPos) {
-        const QPointF pos = m_pList->mapFromGlobal(globalPos);
+        const QPointF pos = mixxx::qt::mapFromGlobal(m_pList.get(), globalPos);
         QMouseEvent event(type,
                 pos,
                 pos,
@@ -79,7 +80,7 @@ class WUsbListTest : public MixxxTest {
                 Qt::LeftButton,
                 Qt::NoButton,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(m_pList.get(), &event);
     }
 

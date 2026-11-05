@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/wrelatedsearch.h"
 
 #include <QHBoxLayout>
@@ -349,13 +351,13 @@ void WRelatedSearch::mouseReleaseEvent(QMouseEvent* e) {
     const bool pressed = m_pressed;
     m_pressed = false;
     if (pressed) {
-        const int index = chipIndexAt(e->globalPosition().toPoint());
+        const int index = chipIndexAt(mixxx::qt::mouseGlobalPosition(e).toPoint());
         if (index >= 0) {
             activate(index);
             e->accept();
             return;
         }
-        const int deck = sourceIndexAt(e->globalPosition().toPoint());
+        const int deck = sourceIndexAt(mixxx::qt::mouseGlobalPosition(e).toPoint());
         if (deck >= 0) {
             setSource(m_source == deck ? kSourceSelection : deck);
             e->accept();

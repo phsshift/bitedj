@@ -47,3 +47,15 @@ No rollback required: no phone app/settings/system configuration changed.
 
 ## Resume audit — 2026-11-05
 See diagnostics/run3/RESUME_FINDINGS.md. Saved run3 reports now establish unit and visual setup success, with visual comparisons still failing. Full archive SHA256 remains unverified. No Actions polling or phone launch performed.
+
+## Next stage: Ubuntu Touch SDK / system audio first
+Prepared from f16370a493332a6a2f50be6d7f28bd238a5ac94e. Full local source snapshot:
+/home/phablet/Documents/Codex/bitedj-f16370a493332a6a2f50be6d7f28bd238a5ac94e.
+See packaging/ubuntu-touch/README.md. Mobile compile flag gates appliance system
+actions and uses system audio. Qt5 touch compatibility and a pinned SDK Click
+build/audit job are prepared. 9 local package/launcher checks PASS; C++/SDK/GUI
+NOT TESTED. Native Qt6 visual tests still mandatory, with original goldens.
+User wants GUI + built-in system audio verified before connecting MOTU.
+Continue respecting the user's no-automatic-polling request: await their build
+completion email or explicit result-check request, then inspect diagnostics.
+Do not infer runtime compatibility from compilation or ELF architecture alone.

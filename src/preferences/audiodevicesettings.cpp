@@ -701,7 +701,17 @@ void AudioDeviceSettings::refreshDeviceList() {
         // SoundDevicePortAudio leaves alsaHwDevice empty for all of them.
         if (pDevice->getHostAPI() == MIXXX_PORTAUDIO_ALSA_STRING &&
                 pDevice->getDeviceId().alsaHwDevice.isEmpty()) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+            // Confined apps reach the existing system sound server through
+            // these app-local ALSA PCMs. Hardware remains available to future
+            // explicitly permitted USB profiles; unrelated aliases stay hidden.
+            const QString name = pDevice->getDeviceId().name;
+            if (name != QStringLiteral("default") && name != QStringLiteral("pulse")) {
+                continue;
+            }
+#else
             continue;
+#endif
         }
         const int channels = static_cast<int>(pDevice->getNumOutputChannels());
         if (channels < 2) {

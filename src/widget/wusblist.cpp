@@ -1,10 +1,11 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/wusblist.h"
 
 #include <QApplication>
 #include <QGridLayout>
 #include <QLabel>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSizePolicy>
@@ -144,7 +145,7 @@ void WUsbList::mousePressEvent(QMouseEvent* e) {
     QScrollBar* pScrollBar = m_pScrollArea->verticalScrollBar();
     if (pScrollBar->isVisible() &&
             pScrollBar->rect().contains(
-                    pScrollBar->mapFromGlobal(e->globalPosition().toPoint()))) {
+                    pScrollBar->mapFromGlobal(mixxx::qt::mouseGlobalPosition(e).toPoint()))) {
         m_dragState = DragState::ScrollBar;
         forwardToScrollBar(e);
         e->accept();
@@ -154,7 +155,7 @@ void WUsbList::mousePressEvent(QMouseEvent* e) {
     // Hold the press back until we know whether this is a tap or a drag; the
     // eject is dispatched on release.
     m_dragState = DragState::Pending;
-    m_pressGlobalPos = e->globalPosition();
+    m_pressGlobalPos = mixxx::qt::mouseGlobalPosition(e);
     m_lastGlobalY = m_pressGlobalPos.y();
     m_remainingDy = 0;
     e->accept();
@@ -171,7 +172,7 @@ void WUsbList::mouseMoveEvent(QMouseEvent* e) {
         return;
     }
 
-    const qreal globalY = e->globalPosition().y();
+    const qreal globalY = mixxx::qt::mouseGlobalPosition(e).y();
     if (m_dragState == DragState::Pending) {
         if (std::abs(globalY - m_pressGlobalPos.y()) < dragStartDistance()) {
             // Might still become a tap, keep swallowing.
@@ -207,7 +208,7 @@ void WUsbList::mouseReleaseEvent(QMouseEvent* e) {
     }
     if (state == DragState::Pending) {
         // The finger never moved: a tap after all.
-        const QPoint globalPos = e->globalPosition().toPoint();
+        const QPoint globalPos = mixxx::qt::mouseGlobalPosition(e).toPoint();
         const int recordIndex = widgetIndexAt(m_recordButtons, globalPos);
         if (recordIndex >= 0) {
             handleRecordTap(recordIndex);
@@ -252,16 +253,14 @@ int WUsbList::widgetIndexAt(const QList<T*>& widgets, const QPoint& globalPos) c
 
 void WUsbList::forwardToScrollBar(QMouseEvent* pEvent) {
     QScrollBar* pScrollBar = m_pScrollArea->verticalScrollBar();
-    const QPointF localPos = pScrollBar->mapFromGlobal(pEvent->globalPosition().toPoint());
+    const QPointF localPos = pScrollBar->mapFromGlobal(mixxx::qt::mouseGlobalPosition(pEvent).toPoint());
     const bool isRelease = pEvent->type() == QEvent::MouseButtonRelease;
     const bool isMove = pEvent->type() == QEvent::MouseMove;
-    const QPointingDevice* pDevice = pEvent->pointingDevice()
-            ? pEvent->pointingDevice()
-            : QPointingDevice::primaryPointingDevice();
+    const auto pDevice = mixxx::qt::mouseDevice(pEvent);
     QMouseEvent forwarded(pEvent->type(),
             localPos,
             localPos,
-            pEvent->globalPosition(),
+            mixxx::qt::mouseGlobalPosition(pEvent),
             isMove ? Qt::NoButton : Qt::LeftButton,
             isRelease ? Qt::NoButton : Qt::LeftButton,
             pEvent->modifiers(),

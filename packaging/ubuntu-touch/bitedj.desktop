@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=BiteDJ
+Comment=Two-deck DJ mixer
+Exec=sh launch.sh
+Icon=bitedj.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
+X-Ubuntu-Supported-Orientations=landscape

@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Tests for the Bite DJ controller list: a press and drag scrolls the rows so
 // more controllers than fit the panel can be reached, and the scroll bar can be
 // grabbed directly.
@@ -16,7 +18,6 @@
 #include <QCoreApplication>
 #include <QLayout>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -79,7 +80,7 @@ class WControllerListTest : public MixxxTest {
     // Mimics WWidget::event()'s touch translation: the event is delivered to
     // the list itself and carries no held buttons.
     void sendTouchAsMouse(QEvent::Type type, const QPoint& globalPos) {
-        const QPointF pos = m_pList->mapFromGlobal(globalPos);
+        const QPointF pos = mixxx::qt::mapFromGlobal(m_pList.get(), globalPos);
         QMouseEvent event(type,
                 pos,
                 pos,
@@ -87,7 +88,7 @@ class WControllerListTest : public MixxxTest {
                 Qt::LeftButton,
                 Qt::NoButton,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(m_pList.get(), &event);
     }
 

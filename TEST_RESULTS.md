@@ -22,3 +22,9 @@
 | Pioneer 8ch software / hardware | NOT TESTED | no implementation/test yet |
 
 User's prior successful MOTU ALSA test is accepted; no reconfiguration attempted.
+
+## Ubuntu Touch target preparation
+PASS locally: 9 packaging/launcher regression checks; shell syntax;
+refusal of SDK build script on the phone. Target C++ compilation, upstream
+unit suite in SDK, Clickable review, installation, GUI and system sound remain
+NOT TESTED pending CI and device testing. MOTU deferred by user.

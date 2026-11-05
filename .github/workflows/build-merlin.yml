@@ -114,3 +114,51 @@ jobs:
           if-no-files-found: error
 # Native build checkpoint only. No Click/install/release claim:
 # SDK, Qt platform integration, sandbox and runtime closure still need validation.
+
+  ubuntu-touch-click:
+    name: Ubuntu Touch Qt5 SDK / system audio
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check package validators and launcher
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Install pinned Clickable CLI
+        run: python -m pip install clickable-ut==8.10.0
+      - name: Record target build provenance
+        run: |
+          mkdir -p reports-ut
+          echo "${GITHUB_RUN_NUMBER}" > reports-ut/build-number.txt
+          git rev-parse HEAD > reports-ut/commit.txt
+          clickable --version > reports-ut/clickable-version.txt
+          docker version > reports-ut/docker-version.txt
+      - name: Restore SDK compiler cache
+        uses: actions/cache@v4
+        with:
+          path: .ccache-ut-sdk
+          key: merlin-ut-qt5-sdk-v1-${{ github.sha }}
+          restore-keys: merlin-ut-qt5-sdk-v1-
+      - name: Build real application, run unit tests and package Click
+        env:
+          CLICKABLE_NON_INTERACTIVE: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          clickable -c packaging/ubuntu-touch/clickable.yaml --arch arm64 build 2>&1 | tee reports-ut/clickable.log
+          python3 scripts/verify-ut-click.py build reports-ut
+      - name: Save target package and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-ut-v0.1.0-test.${{ github.run_number }}-${{ github.sha }}
+          path: |
+            build/**/*.click
+            reports-ut/
+          if-no-files-found: error
+# Target package remains a test build until Lomiri launch and system audio are verified.

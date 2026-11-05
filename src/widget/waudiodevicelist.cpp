@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 #include "widget/waudiodevicelist.h"
 
 #include <QMouseEvent>
@@ -66,7 +68,7 @@ void WAudioDeviceList::mousePressEvent(QMouseEvent* e) {
         // Map via global coords so the hit-test is correct regardless of which
         // widget the synthesized event's local position referenced. The rows
         // are direct children, so geometry() is in our coordinates.
-        const QPoint pos = mapFromGlobal(e->globalPosition().toPoint());
+        const QPoint pos = mapFromGlobal(mixxx::qt::mouseGlobalPosition(e).toPoint());
         for (int i = 0; i < m_rows.size(); ++i) {
             if (m_rows.at(i)->geometry().contains(pos)) {
                 handleRowTap(i);

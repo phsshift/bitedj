@@ -1,3 +1,5 @@
+#include "util/qtinputcompat.h"
+
 // Tests for the Bite DJ deck time readout: tapping it flips that deck between
 // elapsed and remaining time, and only that deck. The display mode lives in the
 // player's own [ChannelN],show_duration_remaining, so the two decks can disagree
@@ -12,7 +14,6 @@
 
 #include <QCoreApplication>
 #include <QMouseEvent>
-#include <QPointingDevice>
 #include <memory>
 
 #include "control/controlobject.h"
@@ -84,7 +85,7 @@ class WNumberPosTest : public MixxxTest {
                 Qt::LeftButton,
                 Qt::NoButton,
                 Qt::NoModifier,
-                QPointingDevice::primaryPointingDevice());
+                mixxx::qt::mouseDevice());
         QCoreApplication::sendEvent(pWidget, &press);
     }
 

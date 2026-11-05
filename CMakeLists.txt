@@ -1287,6 +1287,13 @@ set_source_files_properties(src/util/moc_included_test.cpp PROPERTIES SKIP_PRECO
 set_target_properties(mixxx-lib PROPERTIES AUTOMOC ON AUTOUIC ON CXX_CLANG_TIDY "${CLANG_TIDY}")
 target_include_directories(mixxx-lib PUBLIC src "${CMAKE_CURRENT_BINARY_DIR}/src")
 target_sources(mixxx-lib PRIVATE src/util/rlimit.cpp)
+option(BITEDJ_UBUNTU_TOUCH "Use Lomiri input and system audio; leave appliance OS actions to the shell" OFF)
+if(BITEDJ_UBUNTU_TOUCH)
+  if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(FATAL_ERROR "BITEDJ_UBUNTU_TOUCH requires Linux")
+  endif()
+  target_compile_definitions(mixxx-lib PUBLIC BITEDJ_UBUNTU_TOUCH)
+endif()
 set(MIXXX_SETTINGS_PATH ".mixxx/")
 
 option(WARNINGS_PEDANTIC "Let the compiler show even more warnings" OFF)

@@ -558,12 +558,16 @@ void SoundManagerConfig::loadDefaults(SoundManager* soundManager, unsigned int f
         QList<QString> apiList = soundManager->getHostAPIList();
         if (!apiList.isEmpty()) {
 #ifdef __LINUX__
+#ifdef BITEDJ_UBUNTU_TOUCH
+            m_api = MIXXX_PORTAUDIO_ALSA_STRING;
+#else
             //Check for JACK and use that if it's available, otherwise use ALSA
             if (apiList.contains(MIXXX_PORTAUDIO_JACK_STRING)) {
                 m_api = MIXXX_PORTAUDIO_JACK_STRING;
             } else {
                 m_api = MIXXX_PORTAUDIO_ALSA_STRING;
             }
+#endif
 #endif
 #ifdef __WINDOWS__
             //Existence of ASIO doesn't necessarily mean you've got ASIO devices
@@ -597,6 +601,14 @@ void SoundManagerConfig::loadDefaults(SoundManager* soundManager, unsigned int f
                 if (pDevice->getNumOutputChannels() < 2) {
                     continue;
                 }
+#ifdef BITEDJ_UBUNTU_TOUCH
+                // On first launch use system audio. Never seize the phone's
+                // physical ALSA PCM or silently fall back to another device.
+                if (pDevice->getHostAPI() != MIXXX_PORTAUDIO_ALSA_STRING ||
+                        pDevice->getDeviceId().name != QStringLiteral("default")) {
+                    continue;
+                }
+#endif
                 AudioOutput mainOut(AudioPathType::Main,
                         0,
                         mixxx::audio::ChannelCount::stereo(),
