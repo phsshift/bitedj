@@ -3,7 +3,7 @@
 Build from the repository root:
 
 ```sh
-clickable -c packaging/ubuntu-touch/clickable.yaml --arch arm64 build
+clickable build --config packaging/ubuntu-touch/clickable.yaml --arch arm64
 python3 scripts/verify-ut-click.py build reports-ut
 ```
 
