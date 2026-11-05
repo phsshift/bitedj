@@ -1,0 +1,70 @@
+name: Merlin ARM64 build
+on:
+  push:
+    branches: [ubuntu-touch-merlin]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: merlin-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    env:
+      QT_QPA_PLATFORM: offscreen
+      CTEST_OUTPUT_ON_FAILURE: '1'
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Record provenance
+        run: |
+          mkdir -p reports
+          git rev-parse HEAD > reports/commit.txt
+          uname -a > reports/runner.txt
+          dpkg-query -W > reports/packages-before.txt
+          echo "merlin-v0.1.0-test.${GITHUB_RUN_NUMBER}" > reports/version.txt
+      - name: Install native build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools/debian_buildenv.sh setup < /dev/null 2>&1 | tee reports/dependencies.log
+      - name: Configure real engine and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DQT6=ON -DDOWNLOAD_MANUAL=OFF -DINSTALL_USER_UDEV_RULES=OFF -DWARNINGS_FATAL=OFF 2>&1 | tee reports/configure.log
+      - name: Compile application and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake --build build --target mixxx mixxx-test --parallel 2 2>&1 | tee reports/build.log
+      - name: Run upstream tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ctest --test-dir build --no-tests=error --timeout 120 --parallel 1 --output-junit "${GITHUB_WORKSPACE}/reports/tests.xml" 2>&1 | tee reports/tests.log
+      - name: Stage native installation and audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          DESTDIR="${GITHUB_WORKSPACE}/stage" cmake --install build --prefix /usr 2>&1 | tee reports/install.log
+          python3 scripts/audit-native.py stage | tee reports/native-audit.json
+          cp README_MERLIN.md BUILD_REPORT.md AUDIO_ROUTING.md TEST_RESULTS.md CHANGELOG_MERLIN.md HANDOFF.md reports/
+          tar -czf bitedj-native-arm64.tar.gz -C stage .
+          sha256sum bitedj-native-arm64.tar.gz > reports/SHA256SUMS
+      - name: Save diagnostics and native artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-v0.1.0-test.${{ github.run_number }}-${{ github.sha }}
+          path: |
+            reports/
+            bitedj-native-arm64.tar.gz
+          if-no-files-found: error
+# Native build checkpoint only. No Click/install/release claim:
+# SDK, Qt platform integration, sandbox and runtime closure still need validation.
