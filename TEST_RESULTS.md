@@ -6,8 +6,10 @@
 | ADB connectivity | FAIL | listener creation Operation not permitted |
 | MOTU visibility in this session | NOT TESTED | only onboard card in proc; /dev/snd unavailable |
 | GitHub account read | PASS | connected account phsshift |
-| Existing accessible BiteDJ fork | NOT TESTED | no match in returned account repository list |
-| ARM64 compilation / upstream tests | NOT TESTED | no runner started |
+| Existing accessible BiteDJ fork | PASS | phsshift/bitedj, ubuntu-touch-merlin |
+| ARM64 compilation | PASS | run 42020298377, application and mixxx-test built |
+| Upstream tests | FAIL | 1 MP3 reference failure, 11 visual executables missing; see BUILD_REPORT.md |
+| Corrected workflow and MP3 reference | NOT TESTED | awaiting new CI execution |
 | Native audit negative cases | PASS | rejects missing binary and invalid ELF; Python syntax checked |
 | Click package / GUI / both decks | NOT TESTED | no build installed |
 | Internal / External MOTU separation | NOT TESTED | physical measurement required |

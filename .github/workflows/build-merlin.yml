@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cmake --build build --target mixxx mixxx-test --parallel 2 2>&1 | tee reports/build.log
+          cmake --build build --target mixxx mixxx-test bitedj-visual-test --parallel 2 2>&1 | tee reports/build.log
       - name: Run upstream tests
         shell: bash
         run: |
@@ -64,6 +64,8 @@ jobs:
           name: merlin-v0.1.0-test.${{ github.run_number }}-${{ github.sha }}
           path: |
             reports/
+            build/visual-test-output/
+            build/Testing/Temporary/
             bitedj-native-arm64.tar.gz
           if-no-files-found: error
 # Native build checkpoint only. No Click/install/release claim:

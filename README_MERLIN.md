@@ -1,5 +1,5 @@
 # BiteDJ on Ubuntu Touch merlin — bootstrap checkpoint
-Status: NOT BUILT / NOT INSTALLED.
+Status: ARM64 COMPILATION PASS / TESTS FAIL / NOT INSTALLED.
 Upstream: https://github.com/TeamDeckshark/bitedj
 Pinned upstream: 87f46b4bf176811a707d05e1806392d2c8de8d83 (Mixxx base 2.5.6).
 
