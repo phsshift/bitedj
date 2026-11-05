@@ -66,16 +66,22 @@ bool isolateRemovableMedia() {
         fprintf(stderr, "visual-test: cannot isolate drives (unshare: %s)\n", strerror(errno));
         return false;
     }
-    writeFile("/proc/self/setgroups", "deny");
-    writeFile("/proc/self/uid_map", QByteArray::number(uid) + ' ' + QByteArray::number(uid) + " 1");
-    writeFile("/proc/self/gid_map", QByteArray::number(gid) + ' ' + QByteArray::number(gid) + " 1");
+    if (!writeFile("/proc/self/setgroups", "deny") ||
+            !writeFile("/proc/self/uid_map", QByteArray::number(uid) + ' ' + QByteArray::number(uid) + " 1") ||
+            !writeFile("/proc/self/gid_map", QByteArray::number(gid) + ' ' + QByteArray::number(gid) + " 1")) {
+        fprintf(stderr, "visual-test: cannot map namespace identity: %s\n", strerror(errno));
+        return false;
+    }
     if (mount(nullptr, "/", nullptr, MS_REC | MS_PRIVATE, nullptr) != 0) {
         fprintf(stderr, "visual-test: cannot isolate drives (mount: %s)\n", strerror(errno));
         return false;
     }
     for (const char* path : {"/mnt", "/media", "/run/media"}) {
         if (QDir(QString::fromLatin1(path)).exists()) {
-            mount("tmpfs", path, "tmpfs", 0, "mode=0755");
+            if (mount("tmpfs", path, "tmpfs", 0, "mode=0755") != 0) {
+                fprintf(stderr, "visual-test: cannot isolate %s: %s\n", path, strerror(errno));
+                return false;
+            }
         }
     }
     return true;
@@ -135,7 +141,9 @@ void writeConfig(const QString& settingsPath,
 
 int main(int argc, char* argv[]) {
 #ifdef __linux__
-    isolateRemovableMedia();
+    if (!isolateRemovableMedia()) {
+        return kErrorExitCode;
+    }
 #endif
     // Headless and identical everywhere: no display server, and none of the
     // desktop's scaling or style.

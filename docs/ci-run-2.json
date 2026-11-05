@@ -1,0 +1,28 @@
+{
+  "run_id": 42033227856,
+  "commit": "b3e5de9db232f27ecbf249c6a0941b452f4fd62a",
+  "run_url": "https://github.com/phsshift/bitedj/actions/runs/42033227856",
+  "artifact_id": 13419423239,
+  "artifact_sha256": "26881029c1aa88f937bc67f8de30e2155214d5fe380828df9d0ebbf10da0bdb3",
+  "artifact_download_sha256_verified": true,
+  "ctest": {
+    "registered": 1225,
+    "passed": 1154,
+    "failed": 11,
+    "disabled": 13,
+    "skipped": 47
+  },
+  "compilation": "PASS",
+  "mp3_first_sound_test": "PASS",
+  "visual_tests": "FAIL",
+  "errors": [
+    "visual-test: cannot isolate drives (mount: Permission denied)",
+    "visual-test: cannot mount drive /media/SERATO: Permission denied",
+    "visual-test: cannot mount drive /media/REKORDBOX: Permission denied",
+    "No audio output. Open Settings -> Audio to pick a device.",
+    "No CJK font installed",
+    "11 screenshot scenarios failed, including pixel and textColor comparisons"
+  ],
+  "screenshot_review": "beat_grid_lines actual replaces tab bar with no-audio banner; golden has tabs. Other rendering differences still require revalidation.",
+  "target_gui_audio": "NOT TESTED"
+}

@@ -16,6 +16,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       CTEST_OUTPUT_ON_FAILURE: '1'
       DEBIAN_FRONTEND: noninteractive
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,30 +34,64 @@ jobs:
         run: |
           set -euo pipefail
           tools/debian_buildenv.sh setup < /dev/null 2>&1 | tee reports/dependencies.log
+      - name: Restore compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: merlin-arm64-ccache-v1-${{ github.sha }}
+          restore-keys: merlin-arm64-ccache-v1-
+      - name: Limit compiler cache
+        run: ccache --max-size=2G
       - name: Configure real engine and tests
         shell: bash
         run: |
           set -euo pipefail
           cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DQT6=ON -DDOWNLOAD_MANUAL=OFF -DINSTALL_USER_UDEV_RULES=OFF -DWARNINGS_FATAL=OFF 2>&1 | tee reports/configure.log
       - name: Compile application and tests
+        id: compile
         shell: bash
         run: |
           set -euo pipefail
           cmake --build build --target mixxx mixxx-test bitedj-visual-test --parallel 2 2>&1 | tee reports/build.log
-      - name: Run upstream tests
+      - name: Run upstream unit tests
+        id: unit_tests
         shell: bash
         run: |
           set -euo pipefail
-          ctest --test-dir build --no-tests=error --timeout 120 --parallel 1 --output-junit "${GITHUB_WORKSPACE}/reports/tests.xml" 2>&1 | tee reports/tests.log
+          ctest --test-dir build -LE visual --no-tests=error --timeout 120 --parallel 1 --output-junit "${GITHUB_WORKSPACE}/reports/unit-tests.xml" 2>&1 | tee reports/unit-tests.log
+      - name: Prepare isolated visual test environment
+        id: visual_setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/setup-ci-visual.sh 2>&1 | tee reports/visual-setup.log
+      - name: Run upstream visual tests
+        id: visual_tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ctest --test-dir build -L visual --no-tests=error --timeout 120 --parallel 1 --output-junit "${GITHUB_WORKSPACE}/reports/visual-tests.xml" 2>&1 | tee reports/visual-tests.log
       - name: Stage native installation and audit
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        env:
+          UNIT_TEST_STATUS: ${{ steps.unit_tests.outcome }}
+          VISUAL_SETUP_STATUS: ${{ steps.visual_setup.outcome }}
+          VISUAL_TEST_STATUS: ${{ steps.visual_tests.outcome }}
         shell: bash
         run: |
           set -euo pipefail
+          printf 'unit_tests=%s\nvisual_setup=%s\nvisual_tests=%s\ntarget_runtime=NOT TESTED\n' "$UNIT_TEST_STATUS" "$VISUAL_SETUP_STATUS" "$VISUAL_TEST_STATUS" > reports/validation-status.txt
           DESTDIR="${GITHUB_WORKSPACE}/stage" cmake --install build --prefix /usr 2>&1 | tee reports/install.log
           python3 scripts/audit-native.py stage | tee reports/native-audit.json
           cp README_MERLIN.md BUILD_REPORT.md AUDIO_ROUTING.md TEST_RESULTS.md CHANGELOG_MERLIN.md HANDOFF.md reports/
           tar -czf bitedj-native-arm64.tar.gz -C stage .
           sha256sum bitedj-native-arm64.tar.gz > reports/SHA256SUMS
+      - name: Save compiler cache
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: merlin-arm64-ccache-v1-${{ github.sha }}
       - name: Save diagnostics and native artifact
         if: always()
         uses: actions/upload-artifact@v4

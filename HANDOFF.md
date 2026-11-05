@@ -13,14 +13,23 @@ GitHub connector can read repositories and create commits/branches in existing r
 it cannot create forks. Fork verified: https://github.com/phsshift/bitedj, parent TeamDeckshark/bitedj.
 Branch ubuntu-touch-merlin created at pinned upstream SHA.
 
-Next action: await the user's email notification for the CI run triggered by the
-failure-fix commit, then inspect results. Do not poll or monitor automatically.
-Fixes build the missing bitedj-visual-test target and choose the already documented
-3326 VBR reference specifically for libmad FPM_DEFAULT. No tests disabled.
-See BUILD_REPORT.md for the original failure; visual baselines on ARM64 remain
-unvalidated. The repair commit is the branch head after the bootstrap commit.
-Current session is unrestricted; earlier sandbox findings above are historical,
-not a fresh check. No phone audio/system/VPN modifications made.
+Latest completed run: https://github.com/phsshift/bitedj/actions/runs/42033227856
+Commit b3e5de9db232f27ecbf249c6a0941b452f4fd62a: compilation and MP3 fix PASS;
+1154 tests PASS, 11 visual FAIL, 13 disabled, 47 skipped. No installation artifact
+was staged. Artifact diagnostics downloaded with SHA256 verified; see docs/ci-run-2.json.
+
+Next action: await the user's email notification after the visual-environment
+repair is pushed, then inspect that run. Do not automatically poll or monitor.
+Repair adds runner-only virtual PulseAudio/ALSA output, CJK fonts, a named AppArmor
+profile for the visual executable, and fail-closed namespace setup in the harness.
+No goldens/tolerances changed. Additional render differences remain NOT TESTED.
+Native staging now runs after compilation even if tests fail, explicitly recording
+test outcomes; its archive is diagnostic and must not be treated as a release.
+Compiler cache is preserved on test failure to reduce repeat work.
+Current source commit can be read from branch head/CI reports/commit.txt.
+Local syntax/YAML/host-refusal checks PASS; full changes await CI compilation.
+Current session is unrestricted; earlier sandbox findings above are historical.
+No phone audio/system/VPN modifications made. Do not run CI setup on the phone.
 
 Before phone launch: gate poweroff, swaymsg rotation, umount and kiosk OSK supervisor
 operations under a target-specific platform mode; inspect all other process calls.
