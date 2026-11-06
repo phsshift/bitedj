@@ -117,6 +117,8 @@ jobs:
 
   ubuntu-touch-click:
     name: Ubuntu Touch Qt5 SDK / system audio
+    env:
+      CLICKABLE_DOCKER_COMMAND: docker
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
     steps:
