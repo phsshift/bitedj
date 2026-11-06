@@ -67,7 +67,10 @@ QStringList FsSamplerBankStore::parseBank(
     if (parseError.error != QJsonParseError::NoError || !document.isArray()) {
         qWarning() << kLogTag << ": ignoring unreadable sampler bank on" << mountRoot
                    << parseError.errorString();
-        return QStringList(slotCount, QString());
+        while (locations.size() < slotCount) {
+            locations.append(QString());
+        }
+        return locations;
     }
 
     const QDir rootDir(mountRoot);

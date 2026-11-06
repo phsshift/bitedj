@@ -1,5 +1,8 @@
 #include "library/dao/fshistorystore.h"
 
+#include <QDebug>
+#include <QVariant>
+
 #include <QDate>
 #include <QDir>
 #include <QFileInfo>

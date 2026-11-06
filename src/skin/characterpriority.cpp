@@ -387,7 +387,11 @@ QString CharacterPriority::uiLocale() const {
 }
 
 void CharacterPriority::updateFamily() {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QStringList installed = QFontDatabase::families();
+#else
+    const QStringList installed = QFontDatabase().families();
+#endif
     const QStringList preference = familyPreference(resolve(m_priority, uiLocale()));
     m_family.clear();
     for (const QString& candidate : preference) {

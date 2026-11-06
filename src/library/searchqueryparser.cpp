@@ -148,9 +148,14 @@ void SearchQueryParser::restrictToTableColumns(const QStringList& tableColumns) 
     }
     const QSet<QString> available(tableColumns.cbegin(), tableColumns.cend());
     for (auto it = m_fieldToSqlColumns.begin(); it != m_fieldToSqlColumns.end(); ++it) {
-        it.value().removeIf([&available](const QString& column) {
-            return !available.contains(column);
-        });
+        auto& columns = it.value();
+        for (auto column = columns.begin(); column != columns.end();) {
+            if (!available.contains(*column)) {
+                column = columns.erase(column);
+            } else {
+                ++column;
+            }
+        }
     }
     m_keyIdAvailable = available.contains(QStringLiteral("key_id"));
     m_restrictedToTableColumns = true;

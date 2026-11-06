@@ -338,7 +338,10 @@ void SamplerDrive::restoreAllBanks() {
             // rather than left as it was: its slots came from a different
             // drive, and a sample this one does not have is not part of the
             // set it stores. The first slot the DJ fills writes the bank.
-            stored = QStringList(kSamplersPerBank, QString());
+            stored.clear();
+            for (int slot = 0; slot < kSamplersPerBank; ++slot) {
+                stored.append(QString());
+            }
         }
         applyBank(bank, stored);
     }

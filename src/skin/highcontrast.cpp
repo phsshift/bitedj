@@ -305,10 +305,15 @@ void HighContrast::onEnabledChanged(double value) {
 
 // static
 QColor HighContrast::invertColor(const QColor& color) {
-    float h = 0.0f;
-    float s = 0.0f;
-    float l = 0.0f;
-    float a = 1.0f;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    using HslComponent = float;
+#else
+    using HslComponent = qreal;
+#endif
+    HslComponent h = 0.0f;
+    HslComponent s = 0.0f;
+    HslComponent l = 0.0f;
+    HslComponent a = 1.0f;
     color.getHslF(&h, &s, &l, &a);
     // Achromatic colors report hue -1, which fromHslF() rejects; with zero
     // saturation the hue is arbitrary anyway.
@@ -433,7 +438,7 @@ QString HighContrast::invertStyleSheet(const QString& styleSheet, const QString&
         // Named color (black, white, gray, lightgray, ...). Every other word in
         // a value — solid, dashed, bold, uppercase, px — fails this test.
         if (!isPassThroughName(ident)) {
-            const QColor named = QColor::fromString(ident.toLower());
+            const QColor named(ident.toLower());
             if (named.isValid()) {
                 out.append(invertColor(named).name(QColor::HexRgb));
                 i = identEnd;
