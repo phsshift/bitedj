@@ -800,7 +800,7 @@ QVariant BaseTrackTableModel::roleValue(
             // on those rows. Parse the text first and, if it resolves to a
             // chromatic key, render it through s_notation so the column tracks
             // the [Library],key_notation toggle.
-            if (rawValue.metaType().id() == QMetaType::QString) {
+            if (rawValue.userType() == QMetaType::QString) {
                 const auto parsed =
                         KeyUtils::guessKeyFromText(rawValue.toString());
                 if (parsed != mixxx::track::io::key::INVALID) {
