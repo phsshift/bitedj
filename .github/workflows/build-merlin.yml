@@ -138,6 +138,19 @@ jobs:
           git rev-parse HEAD > reports-ut/commit.txt
           clickable --version > reports-ut/clickable-version.txt
           docker version > reports-ut/docker-version.txt
+      - name: Prepare pinned SDK with a valid local image tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk_image="$(python3 -c 'import yaml; print(yaml.safe_load(open("packaging/ubuntu-touch/clickable.yaml"))["docker_image"])')"
+          [[ "$sdk_image" =~ @sha256:[0-9a-f]{64}$ ]]
+          sdk_digest="${sdk_image##*@sha256:}"
+          sdk_tag="bitedj-ut-sdk:sha256-${sdk_digest}"
+          docker pull "$sdk_image" 2>&1 | tee reports-ut/sdk-pull.log
+          docker tag "$sdk_image" "$sdk_tag"
+          test "$(docker image inspect --format '{{.Id}}' "$sdk_image")" = "$(docker image inspect --format '{{.Id}}' "$sdk_tag")"
+          docker image inspect "$sdk_tag" > reports-ut/sdk-image.json
+          printf 'CLICKABLE_DOCKER_IMAGE=%s\n' "$sdk_tag" >> "$GITHUB_ENV"
       - name: Restore SDK compiler cache
         uses: actions/cache@v4
         with:
