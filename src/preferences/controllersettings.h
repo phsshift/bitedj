@@ -43,6 +43,12 @@ class ControllerSettings : public QObject {
         return s_pInstance.loadAcquire();
     }
 
+    // Read from the GUI thread, after the one-shot startup navigation has
+    // completed, so automated UI interaction cannot race that navigation.
+    bool hasCompletedStartupNavigation() const {
+        return m_initialNavDone;
+    }
+
     QStringList rowLabels() const {
         return m_rowLabels;
     }

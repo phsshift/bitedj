@@ -22,6 +22,7 @@
 #include "library/rekordbox/rekordboxanalysis.h"
 #include "mixer/playermanager.h"
 #include "mixxxmainwindow.h"
+#include "preferences/controllersettings.h"
 #include "widget/wlibrarysidebar.h"
 #include "widget/wtracktableview.h"
 
@@ -182,13 +183,19 @@ void Runner::start() {
 }
 
 void Runner::waitForSkin() {
-    if (ControlObject::exists(kSkinReadyKey)) {
+    const auto* pControllerSettings = ControllerSettings::tryInstance();
+    // The controller startup watchdog may navigate to Settings after the
+    // skin appears. Wait for that real startup decision before executing
+    // scenarios; otherwise it can replace the page under a screenshot.
+    if (ControlObject::exists(kSkinReadyKey) && pControllerSettings &&
+            pControllerSettings->hasCompletedStartupNavigation()) {
         beginSteps();
         return;
     }
     m_skinWaitedMs += kPollMs;
     if (m_skinWaitedMs > m_options.startTimeoutMs) {
-        fail(QStringLiteral("the skin did not load within %1 ms").arg(m_options.startTimeoutMs));
+        fail(QStringLiteral("skin/startup navigation did not finish within %1 ms")
+                        .arg(m_options.startTimeoutMs));
         return;
     }
     QTimer::singleShot(kPollMs, this, &Runner::waitForSkin);
