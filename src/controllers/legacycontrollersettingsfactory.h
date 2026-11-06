@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QDomElement>
-
-#include "controllers/legacycontrollersettingsfactory.h"
+#include <QList>
+#include <functional>
+#include <memory>
+#include <utility>
 
 class AbstractLegacyControllerSetting;
 
