@@ -876,13 +876,11 @@ void BaseSqlTableModel::removeTrackRows(const QSet<TrackId>& trackIdsToRemove) {
     TrackId2Rows trackIdToRows;
     TrackPos2Row trackPosToRows; // remains empty
 
-    QMutableListIterator<RowInfo> it(rowInfos);
-    while (it.hasNext()) {
-        const RowInfo& rowInfo = it.next();
-        if (trackIdsToRemove.contains(rowInfo.trackId)) {
-            it.remove();
-        }
-    }
+    rowInfos.erase(std::remove_if(rowInfos.begin(), rowInfos.end(),
+                           [&trackIdsToRemove](const RowInfo& rowInfo) {
+                               return trackIdsToRemove.contains(rowInfo.trackId);
+                           }),
+            rowInfos.end());
 
     // Recreate TrackId2Rows, taken from select()
     trackIdToRows.reserve(rowInfos.size());
