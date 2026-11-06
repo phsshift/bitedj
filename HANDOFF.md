@@ -163,3 +163,45 @@ harmonic_match_drive now executes all three screenshot stages and colour checks.
 Quantize SVG compatibility changed; compare run11 diagnostics with goldens
 before making further visual changes. Successful full build still not achieved.
 User requires detailed status each turn, including all job outcomes and next action.
+
+## Run 42192941596 / usage stop threshold
+Run at 823d3c8cb6f72b7237249feee44d3d1afe6f5edb: FAIL. Native compile,
+unit tests, staging/audit pass; 11 visual scenarios fail. Qt5 iterator fix
+compiled; next failure is unguarded QVariant::metaType() in imported-key
+display. Replaced that call with userType(), preserving existing Qt6 guard
+for the unrelated last-played column. SDK compiler cache now saves on failure.
+User requests stopping with 5% of usage limit remaining. Account usage is
+not exposed to this session; clarification requested. Stop on an exposed
+5%-remaining warning or user report; do not claim to monitor an unavailable
+account percentage. VPN remains untouched; automatic CI checks authorized.
+
+## Run 42204870934 in progress — 2026-11-06
+Commit 72a06c6a0a8603f6d62ba561aa4bc72b4f03e2ad fixes the unguarded QVariant
+type query. SDK compilation passed that location and now fails at
+browse/browsetablemodel.cpp:330, ambiguous QString assignment from {} on Qt5.
+Native compilation passed; unit tests were running at latest check.
+Prepared local runner-only probe-ci-visual-fonts.py and workflow diagnostic
+step to compare existing beat-grid references under three explicit font
+families, without replacing/weakening required visual checks. Do not push
+until the current native job finishes, to preserve its results.
+Downloaded run12 diagnostic artifact 13490892168 (3.76 MB), verified SHA256
+6e62907c6eb94fb370361cf6cbfe4fc948870bc1426255bb1ed361b8837072be
+and ZIP CRCs, extracted diagnostics/run12. Images confirm quantize icon
+now visible, correct Browse page, stopped position -30.11 matches golden;
+font rendering still differs. No large native artifact downloaded.
+User clarified stop threshold is Codex account usage with 5% remaining;
+cannot read account balance directly, stop on exposed warning or user report.
+
+## Run13 complete / combined next repair
+Run 42204870934 completed FAIL. Native compile/unit tests pass; visual tests
+fail; native staging/audit and diagnostic uploads completed. SDK compilation
+failed only at ambiguous QString = {} assignment in browse/browsetablemodel.cpp.
+Prepared QString::clear() fix. All 9 local packaging tests and workflow/shell
+syntax checks PASS. Added explicit Unix Makefiles generator and make -k to
+collect independent Qt5 compile errors in a single run while still returning
+failure and keeping the two-job memory bound. SDK compiler cache persists.
+Added runner-only strict font probes (DejaVu Sans, Liberation Sans, Noto Sans)
+after required visual tests fail; they do not modify goldens or tolerances,
+and cannot override the required suite's failed result. Diagnostics go into
+reports/visual-font-probes. Their purpose is to identify reproducible golden
+font rendering before changing the normal CI environment.

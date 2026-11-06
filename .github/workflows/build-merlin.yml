@@ -71,6 +71,9 @@ jobs:
         run: |
           set -euo pipefail
           ctest --test-dir build -L visual --no-tests=error --timeout 120 --parallel 1 --output-junit "${GITHUB_WORKSPACE}/reports/visual-tests.xml" 2>&1 | tee reports/visual-tests.log
+      - name: Diagnose visual font differences
+        if: ${{ !cancelled() && steps.visual_tests.outcome == 'failure' }}
+        run: python3 scripts/probe-ci-visual-fonts.py
       - name: Stage native installation and audit
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         env:

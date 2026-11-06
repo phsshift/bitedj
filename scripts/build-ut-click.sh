@@ -15,11 +15,13 @@ uname -a > "$reports/runner.txt"
 dpkg-query -W > "$reports/packages.txt"
 git -C "$source_root" rev-parse HEAD > "$reports/commit.txt"
 ccache --max-size=2G
-cmake -S "$source_root" -B "$build_root" \
+cmake -G 'Unix Makefiles' -S "$source_root" -B "$build_root" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo -DQT6=OFF -DBITEDJ_UBUNTU_TOUCH=ON \
     -DBUILD_TESTING=ON -DBUILD_BENCH=OFF -DDOWNLOAD_MANUAL=OFF \
     -DINSTALL_USER_UDEV_RULES=OFF -DWARNINGS_FATAL=OFF -DCMAKE_INSTALL_PREFIX=/usr
-cmake --build "$build_root" --target mixxx mixxx-test --parallel 2
+# Collect independent Qt5 compile failures in one run while retaining the
+# two-job memory bound. Make still exits nonzero if any compilation fails.
+cmake --build "$build_root" --target mixxx mixxx-test --parallel 2 -- -k
 QT_QPA_PLATFORM=offscreen ctest --test-dir "$build_root" -LE visual \
     --no-tests=error --timeout 120 --parallel 1 --output-on-failure \
     --output-junit "$reports/unit-tests.xml"

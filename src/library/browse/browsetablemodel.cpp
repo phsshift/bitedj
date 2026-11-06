@@ -327,7 +327,7 @@ void BrowseTableModel::setPath(mixxx::FileAccess path) {
         m_currentDirectory = path.info().location();
         m_browseGeneration = m_pBrowseThread->executePopulation(std::move(path), this);
     } else {
-        m_currentDirectory = {};
+        m_currentDirectory.clear();
         m_browseGeneration = m_pBrowseThread->executePopulation({}, this);
     }
 }
