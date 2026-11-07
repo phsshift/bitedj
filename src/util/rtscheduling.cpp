@@ -176,7 +176,12 @@ bool pinCurrentThreadToCpuFromEnv(const char* envVar, const char* threadName) {
 }
 
 bool lockAllMemory() {
-#ifdef __LINUX__
+#if defined(BITEDJ_UBUNTU_TOUCH)
+    // MCL_FUTURE can make later thread-stack allocations exceed the session's
+    // finite memlock limit. Keep normal pageable memory on this shared device.
+    qInfo() << "Process-wide memory locking disabled on Ubuntu Touch";
+    return false;
+#elif defined(__LINUX__)
     if (mlockall(MCL_CURRENT | MCL_FUTURE | MCL_ONFAULT) == 0) {
         qInfo() << "Locked process memory (mlockall, on-fault)";
         return true;
