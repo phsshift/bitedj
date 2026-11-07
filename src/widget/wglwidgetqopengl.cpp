@@ -1,3 +1,4 @@
+#include <QOpenGLContext>
 #include <QPalette>
 #include <QResizeEvent>
 
