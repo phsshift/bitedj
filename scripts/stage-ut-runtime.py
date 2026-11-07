@@ -125,6 +125,10 @@ def stage(source, install, reports):
                   'target_gui': 'NOT TESTED', 'system_audio': 'NOT TESTED', 'MOTU': 'DEFERRED'}
     (install / 'build-provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
     (reports / 'runtime-bundle.json').write_text(json.dumps({'bundled': bundled, 'framework': framework, **provenance}, indent=2) + '\n')
+    # Retain a compact address map alongside this exact CI package so stripped
+    # phone crash offsets can be resolved without shipping debug symbols.
+    symbols = subprocess.check_output(['nm', '-n', '-C', '--defined-only', str(binary)], text=True)
+    (reports / 'engine-symbols.txt').write_text(symbols)
     # Stripping only the packaged copy preserves diagnostic symbols in build/.
     subprocess.run(['strip', '--strip-unneeded', str(binary)], check=True)
     for path in libdir.rglob('*.so*'):

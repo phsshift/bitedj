@@ -11,6 +11,12 @@
 #include <cstdio>
 #include <stdexcept>
 
+#if defined(BITEDJ_UBUNTU_TOUCH) && defined(__linux__)
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
+#endif
+
 #include "config.h"
 #include "controllers/controllermanager.h"
 #include "coreservices.h"
@@ -30,6 +36,33 @@
 #include "util/versionstore.h"
 
 namespace {
+
+#if defined(BITEDJ_UBUNTU_TOUCH) && defined(__linux__)
+// Test-build diagnostics: preserve module offsets even without a system debugger.
+// Warm up the unwinder before installing handlers to avoid its initial dlopen
+// during a fatal signal. This is best-effort, not a crash-recovery mechanism.
+void logFatalSignal(int signalNumber) {
+    static constexpr char message[] = "BiteDJ fatal signal: stack follows\n";
+    const auto written = write(STDERR_FILENO, message, sizeof(message) - 1);
+    (void)written;
+    void* frames[64];
+    const int count = backtrace(frames, 64);
+    backtrace_symbols_fd(frames, count, STDERR_FILENO);
+    _exit(128 + signalNumber);
+}
+
+void installCrashDiagnostics() {
+    void* warmup[1];
+    backtrace(warmup, 1);
+    struct sigaction action {};
+    action.sa_handler = logFatalSignal;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = SA_RESETHAND;
+    for (int signalNumber : {SIGSEGV, SIGBUS, SIGABRT, SIGILL}) {
+        sigaction(signalNumber, &action, nullptr);
+    }
+}
+#endif
 
 // Exit codes
 constexpr int kFatalErrorOnStartupExitCode = 1;
@@ -164,6 +197,9 @@ void applyStyleOverride(CmdlineArgs* pArgs) {
 
 int main(int argc, char * argv[]) {
     Console console;
+#if defined(BITEDJ_UBUNTU_TOUCH) && defined(__linux__)
+    installCrashDiagnostics();
+#endif
 
     // Lock pages against reclaim as they are touched (on-fault) so the audio
     // callback never major-faults library text or heap back in from storage
