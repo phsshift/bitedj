@@ -2747,6 +2747,17 @@ if(BULK)
   endif()
   target_compile_definitions(mixxx-lib PUBLIC __BULK__)
   target_link_libraries(mixxx-lib PRIVATE LibUSB::LibUSB)
+  if(BUILD_TESTING AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_sources(mixxx-test PRIVATE src/test/bulkenumeratorfailure_test.cpp)
+    target_link_libraries(mixxx-test PRIVATE LibUSB::LibUSB)
+    # Real libusb remains the default; individual tests inject failure results.
+    target_link_options(mixxx-test PRIVATE
+      -Wl,--wrap=libusb_init
+      -Wl,--wrap=libusb_get_device_list
+      -Wl,--wrap=libusb_exit
+      -Wl,--wrap=libusb_free_device_list
+    )
+  endif()
 endif()
 
 # Vinyl Control

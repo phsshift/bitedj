@@ -10,7 +10,11 @@ BulkEnumerator::BulkEnumerator(UserSettingsPointer pConfig)
         : ControllerEnumerator(),
           m_context(nullptr),
           m_pConfig(pConfig) {
-    libusb_init(&m_context);
+    const int error = libusb_init(&m_context);
+    if (error != LIBUSB_SUCCESS) {
+        qWarning() << "USB Bulk discovery unavailable:" << libusb_error_name(error);
+        m_context = nullptr;
+    }
 }
 
 BulkEnumerator::~BulkEnumerator() {
@@ -18,7 +22,9 @@ BulkEnumerator::~BulkEnumerator() {
     while (m_devices.size() > 0) {
         delete m_devices.takeLast();
     }
-    libusb_exit(m_context);
+    if (m_context) {
+        libusb_exit(m_context);
+    }
 }
 
 static bool is_interesting(struct libusb_device_descriptor *desc) {
@@ -33,8 +39,18 @@ static bool is_interesting(struct libusb_device_descriptor *desc) {
 
 QList<Controller*> BulkEnumerator::queryDevices() {
     qDebug() << "Scanning USB Bulk devices:";
-    libusb_device **list;
-    ssize_t cnt = libusb_get_device_list(m_context, &list);
+    // A failed init leaves no context. Passing nullptr would ask libusb for
+    // its default context, which does not exist after initialization failed.
+    if (!m_context) {
+        return m_devices;
+    }
+    libusb_device** list = nullptr;
+    const ssize_t cnt = libusb_get_device_list(m_context, &list);
+    if (cnt < 0) {
+        qWarning() << "Cannot enumerate USB Bulk devices:"
+                   << libusb_error_name(static_cast<int>(cnt));
+        return m_devices;
+    }
     ssize_t i = 0;
     int err = 0;
 
@@ -42,7 +58,12 @@ QList<Controller*> BulkEnumerator::queryDevices() {
         libusb_device *device = list[i];
         struct libusb_device_descriptor desc;
 
-        libusb_get_device_descriptor(device, &desc);
+        const int descriptorError = libusb_get_device_descriptor(device, &desc);
+        if (descriptorError != LIBUSB_SUCCESS) {
+            qWarning() << "Cannot read USB Bulk device descriptor:"
+                       << libusb_error_name(descriptorError);
+            continue;
+        }
         if (is_interesting(&desc)) {
             struct libusb_device_handle* handle = nullptr;
             err = libusb_open(device, &handle);
