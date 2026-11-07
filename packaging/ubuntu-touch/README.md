@@ -30,7 +30,9 @@ For the initial device test, the application exposes ALSA `default` and `pulse`
 and selects `default` on first launch. An app-local ALSA configuration bridges
 PortAudio to the existing PulseAudio server; the launcher changes no system
 ALSA file, default sink or service. Its AppArmor policy requests audio,
-read-only Music access and keeping the display awake. USB audio/MIDI device
+keeping the display awake. Test audio must be placed in the app's private data
+folder; the reserved music_files_read permission is not requested. Direct access
+to the shared Music folder awaits a supported import path. USB audio/MIDI device
 permissions are deliberately outside this first system-audio test package.
 MOTU testing is deferred until successful GUI and built-in sound tests.
 

@@ -65,7 +65,7 @@ class ClickContentsValidation(unittest.TestCase):
                     'framework': 'ubuntu-touch-24.04-2.x',
                     'hooks': {'bitedj': {'desktop': 'bitedj.desktop', 'apparmor': 'bitedj.apparmor'}}}
         (self.stage / 'manifest.json').write_text(json.dumps(manifest))
-        policy = {'policy_groups': ['audio', 'music_files_read', 'keep-display-on'], 'policy_version': 2404.2}
+        policy = {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}
         (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
         for name in ['bitedj.desktop', 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png', 'LICENSE',
                      'usr/share/mixxx/skins/BiteDJ/skin.xml']:
@@ -102,6 +102,14 @@ class ClickContentsValidation(unittest.TestCase):
         (self.stage / 'lib/aarch64-linux-gnu/alsa-lib/libasound_module_pcm_pulse.so').unlink()
         self.package()
         with self.assertRaisesRegex(RuntimeError, 'Missing package file'):
+            self.verify()
+
+    def test_reserved_music_permission_is_rejected(self):
+        policy = {'policy_groups': ['audio', 'music_files_read', 'keep-display-on'],
+                  'policy_version': 2404.2}
+        (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
+        self.package()
+        with self.assertRaisesRegex(RuntimeError, 'Unexpected package permissions'):
             self.verify()
 
     def test_wrong_commit_is_rejected(self):

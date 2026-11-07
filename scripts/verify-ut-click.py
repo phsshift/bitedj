@@ -26,7 +26,7 @@ def verify(build, reports):
             raise RuntimeError('Incorrect package target')
         hooks = manifest['hooks']['bitedj']
         policy = json.loads((root / hooks['apparmor']).read_text())
-        if policy != {'policy_groups': ['audio', 'music_files_read', 'keep-display-on'], 'policy_version': 2404.2}:
+        if policy != {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}:
             raise RuntimeError('Unexpected package permissions')
         required = [hooks['desktop'], 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png',
                     'LICENSE', 'build-provenance.json', 'usr/bin/mixxx',

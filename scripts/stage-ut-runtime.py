@@ -98,7 +98,7 @@ def stage(source, install, reports):
     manifest = {
         'name': 'bitedj.phsshift', 'version': f'0.1.0-test.{build_number}',
         'title': 'BiteDJ', 'description': 'BiteDJ two-deck DJ mixer for Ubuntu Touch (test build)',
-        'maintainer': 'phsshift', 'architecture': 'arm64',
+        'maintainer': 'phsshift <phsshift@gmail.com>', 'architecture': 'arm64',
         'framework': 'ubuntu-touch-24.04-2.x',
         'hooks': {'bitedj': {'desktop': 'bitedj.desktop', 'apparmor': 'bitedj.apparmor'}}
     }
