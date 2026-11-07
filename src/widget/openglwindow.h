@@ -1,13 +1,21 @@
 #pragma once
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+#include <QOpenGLWidget>
+#else
 #include <QOpenGLWindow>
+#endif
 
 class WGLWidget;
 class TrackDropTarget;
 
 /// Helper class used by wglwidgetqopengl
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+class OpenGLWindow : public QOpenGLWidget {
+#else
 class OpenGLWindow : public QOpenGLWindow {
+#endif
     Q_OBJECT
 
   public:
@@ -15,6 +23,9 @@ class OpenGLWindow : public QOpenGLWindow {
     ~OpenGLWindow();
 
     void widgetDestroyed();
+#ifdef BITEDJ_UBUNTU_TOUCH
+    bool isExposed() const { return isVisible(); }
+#endif
 
   private:
     void initializeGL() override;

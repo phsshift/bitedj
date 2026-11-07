@@ -12,6 +12,9 @@
 
 class QPaintDevice;
 class QOpenGLWindow;
+#ifdef BITEDJ_UBUNTU_TOUCH
+#include <QOpenGLWidget>
+#endif
 class OpenGLWindow;
 class TrackDropTarget;
 
@@ -38,7 +41,11 @@ class WGLWidget : public QWidget {
     void setTrackDropTarget(TrackDropTarget* pTarget);
     TrackDropTarget* trackDropTarget() const;
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+    QOpenGLWidget* getOpenGLWindow() const;
+#else
     QOpenGLWindow* getOpenGLWindow() const;
+#endif
 
   protected:
     void showEvent(QShowEvent* event) override;

@@ -10,7 +10,12 @@
 #include "widget/wglwidget.h"
 
 OpenGLWindow::OpenGLWindow(WGLWidget* pWidget)
+#ifdef BITEDJ_UBUNTU_TOUCH
+        : QOpenGLWidget(pWidget),
+          m_pWidget(pWidget),
+#else
         : m_pWidget(pWidget),
+#endif
           m_pTrackDropTarget(nullptr) {
     setFormat(WaveformWidgetFactory::getSurfaceFormat());
 #ifdef __EMSCRIPTEN__
@@ -20,7 +25,11 @@ OpenGLWindow::OpenGLWindow(WGLWidget* pWidget)
     setFlag(Qt::FramelessWindowHint);
 #endif
     // Prevent this window/widget from getting keyboard focus on click.
+#ifdef BITEDJ_UBUNTU_TOUCH
+    setFocusPolicy(Qt::NoFocus);
+#else
     setFlag(Qt::WindowDoesNotAcceptFocus);
+#endif
 }
 
 OpenGLWindow::~OpenGLWindow() {
@@ -46,11 +55,12 @@ void OpenGLWindow::resizeGL(int w, int h) {
         // QGLWidget::resizeGL has devicePixelRatio applied, so we mimic the same behaviour
         m_pWidget->resizeGL(static_cast<int>(static_cast<float>(w) * devicePixelRatio()),
                 static_cast<int>(static_cast<float>(h) * devicePixelRatio()));
-        // additional paint and swap to avoid flickering
+#ifndef BITEDJ_UBUNTU_TOUCH
+        // QOpenGLWidget schedules its own FBO paint/composition after resize.
         m_pWidget->paintGL();
         m_pWidget->swapBuffers();
-
         m_pWidget->doneCurrent();
+#endif
     }
 }
 
@@ -67,7 +77,11 @@ bool OpenGLWindow::event(QEvent* pEv) {
     // this recursion.
     const auto t = pEv->type();
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+    bool result = QOpenGLWidget::event(pEv);
+#else
     bool result = QOpenGLWindow::event(pEv);
+#endif
 
     if (m_pWidget) {
         // Tooltip don't work by forwarding the events. This mimics the
@@ -121,7 +135,11 @@ bool OpenGLWindow::event(QEvent* pEv) {
             return false; // clazy:exclude=base-class-event
         }
 
-        if (t == QEvent::Resize || t == QEvent::Move || t == QEvent::Expose) {
+        if (t == QEvent::Resize || t == QEvent::Move || t == QEvent::Expose
+#ifdef BITEDJ_UBUNTU_TOUCH
+                || t == QEvent::Paint || t == QEvent::UpdateRequest
+#endif
+        ) {
             // - Resize and Move
             //    Any change to the geometry comes from m_pWidget and its child m_pContainerWidget.
             //    If we send the resulting events back to the m_pWidget we will quickly overflow

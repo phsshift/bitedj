@@ -1363,7 +1363,11 @@ void WaveformWidgetFactory::startVSync(GuiTick* pGuiTick, VisualsManager* pVisua
     if (m_vsyncThread->vsyncMode() == VSyncThread::ST_PLL) {
         WGLWidget* widget = SharedGLContext::getWidget();
         connect(widget->getOpenGLWindow(),
+#ifdef BITEDJ_UBUNTU_TOUCH
+                &QOpenGLWidget::frameSwapped,
+#else
                 &QOpenGLWindow::frameSwapped,
+#endif
                 this,
                 &WaveformWidgetFactory::slotFrameSwapped,
                 Qt::DirectConnection);

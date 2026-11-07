@@ -41,7 +41,13 @@ TrackDropTarget* WGLWidget::trackDropTarget() const {
 void WGLWidget::showEvent(QShowEvent* event) {
     if (!m_pOpenGLWindow) {
         m_pOpenGLWindow = new OpenGLWindow(this);
+#ifdef BITEDJ_UBUNTU_TOUCH
+        // Composite into the main window; Mir must not manage each GL control
+        // as an independent native application surface.
+        m_pContainerWidget = m_pOpenGLWindow;
+#else
         m_pContainerWidget = createWindowContainer(m_pOpenGLWindow, this);
+#endif
         m_pContainerWidget->resize(size());
         m_pContainerWidget->show();
         // The container's autofilled background is what shows for the frames
@@ -72,9 +78,16 @@ bool WGLWidget::isContextValid() const {
 }
 
 void WGLWidget::makeCurrentIfNeeded() {
+#ifdef BITEDJ_UBUNTU_TOUCH
+    if (m_pOpenGLWindow && m_pOpenGLWindow->isValid()) {
+        // Each widget owns an FBO, even when the context is already current.
+        m_pOpenGLWindow->makeCurrent();
+    }
+#else
     if (m_pOpenGLWindow && m_pOpenGLWindow->context() != QOpenGLContext::currentContext()) {
         m_pOpenGLWindow->makeCurrent();
     }
+#endif
 }
 
 void WGLWidget::doneCurrent() {
@@ -99,7 +112,11 @@ void WGLWidget::resizeGL(int w, int h) {
 
 void WGLWidget::swapBuffers() {
     if (shouldRender()) {
+#ifdef BITEDJ_UBUNTU_TOUCH
+        m_pOpenGLWindow->update();
+#else
         m_pOpenGLWindow->context()->swapBuffers(m_pOpenGLWindow->context()->surface());
+#endif
     }
 }
 
@@ -107,6 +124,10 @@ bool WGLWidget::shouldRender() const {
     return m_pOpenGLWindow && m_pOpenGLWindow->isExposed();
 }
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+QOpenGLWidget* WGLWidget::getOpenGLWindow() const {
+#else
 QOpenGLWindow* WGLWidget::getOpenGLWindow() const {
+#endif
     return m_pOpenGLWindow;
 }

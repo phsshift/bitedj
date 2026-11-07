@@ -1721,6 +1721,18 @@ if(BUILD_TESTING)
   )
 
   set_tests_properties(${testsuite} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+  if(BITEDJ_UBUNTU_TOUCH AND QOPENGL)
+    target_sources(mixxx-test PRIVATE src/test/mobileglsurface_test.cpp)
+    gtest_add_tests(
+      TARGET mixxx-test
+      SOURCES src/test/mobileglsurface_test.cpp
+      EXTRA_ARGS --logLevel info
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      TEST_LIST mobile_surface_tests
+    )
+    set_tests_properties(${mobile_surface_tests} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+  endif()
+
 
   # Screenshot tests: the whole application started headless at a fixed window
   # size, driven by a scenario and compared against golden images

@@ -157,6 +157,7 @@ class LauncherContract(unittest.TestCase):
             log = (home / 'data/bitedj.phsshift/launch.log').read_text().splitlines()
             self.assertEqual(log[:5], [str(app / 'alsa.conf'), str(app / 'lib/aarch64-linux-gnu/alsa-lib'),
                                       'unix:/session/pulse/native', 'ubuntumirclient', 'maliit'])
+            self.assertIn('--full-screen', log)
             self.assertIn('/music/track with spaces.wav', log)
             self.assertEqual((home / '.asoundrc').read_text(), 'unchanged system audio\n')
 

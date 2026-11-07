@@ -17,4 +17,4 @@ export QT_QPA_PLATFORM=ubuntumirclient
 export QT_IM_MODULE=maliit
 # Preserve the shell's display scale and session audio server.
 exec "$app_root/usr/bin/mixxx" --settings-path "$app_config" \
-    --resource-path "$app_root/usr/share/mixxx" "$@" >> "$app_data/launch.log" 2>&1
+    --resource-path "$app_root/usr/share/mixxx" --full-screen "$@" >> "$app_data/launch.log" 2>&1

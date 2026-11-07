@@ -239,7 +239,11 @@ int main(int argc, char * argv[]) {
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
             Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 
-#ifdef __LINUX__
+#ifdef BITEDJ_UBUNTU_TOUCH
+    const QString appId = qEnvironmentVariable("APP_ID");
+    QGuiApplication::setDesktopFileName(appId.isEmpty()
+                    ? QStringLiteral("bitedj.phsshift_bitedj") : appId);
+#elif defined(__LINUX__)
     QGuiApplication::setDesktopFileName(QStringLiteral("org.mixxx.Mixxx"));
 #endif
 
