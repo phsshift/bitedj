@@ -1,6 +1,6 @@
 clickable_minimum_required: '8.9.0'
 framework: ubuntu-touch-24.04-2.x
-# The 1.x/2.x releases share Noble's Qt5 ABI. Pin the native ARM64 SDK.
+# Pin the ARM64 SDK; select GLES development packages to match the phone's Qt.
 docker_image: clickable/arm64-ut24.04-1.x-arm64@sha256:42ea2cbe40f91befcb275bdd0a9e1bc36718afc6d4ce3897a68875e6da8cd78d
 restrict_arch: arm64
 builder: custom
@@ -27,7 +27,8 @@ dependencies_target:
   - libflac-dev
   - libgmock-dev
   - libgtest-dev
-  - libgl1-mesa-dev
+  - libgles-dev
+  - libegl-dev
   - libhidapi-dev
   - libid3tag0-dev
   - liblilv-dev
@@ -39,7 +40,8 @@ dependencies_target:
   - libopusfile-dev
   - libportmidi-dev
   - libprotobuf-dev
-  - libqt5opengl5-dev
+  - qtbase5-gles-dev
+  - libqt5quick5-gles
   - libqt5sql5-sqlite
   - libqt5svg5-dev
   - librubberband-dev
@@ -56,7 +58,6 @@ dependencies_target:
   - lv2-dev
   - portaudio19-dev
   - libasound2-plugins
-  - qtbase5-private-dev
-  - qtdeclarative5-private-dev
+  - qtdeclarative5-dev
   - qttools5-dev-tools
   - qtkeychain-qt5-dev

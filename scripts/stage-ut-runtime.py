@@ -23,6 +23,12 @@ def aarch64(path):
         raise RuntimeError(f'Expected little-endian AArch64 ELF: {path}')
 
 
+def check_gles_symbols(path):
+    symbols = subprocess.check_output(['nm', '-D', '--undefined-only', str(path)], text=True)
+    if re.search(r'QOpenGLFunctions_[0-9]', symbols):
+        raise RuntimeError('Desktop OpenGL Qt symbols in Ubuntu Touch executable')
+
+
 def dependencies(path):
     output = subprocess.check_output(['ldd', str(path)], text=True, stderr=subprocess.STDOUT)
     result = []
@@ -41,6 +47,7 @@ def dependencies(path):
 def stage(source, install, reports):
     binary = install / 'usr/bin/mixxx'
     aarch64(binary)
+    check_gles_symbols(binary)
     if not (install / 'usr/share/mixxx/skins/BiteDJ/skin.xml').is_file():
         raise RuntimeError('BiteDJ skin is missing')
     libdir = install / 'lib/aarch64-linux-gnu'

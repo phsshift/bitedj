@@ -43,6 +43,15 @@ class RuntimeValidation(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'Qt6 dependency'):
                 runtime.dependencies(Path('/test/engine'))
 
+    def test_desktop_gl_qt_symbols_are_rejected(self):
+        for symbol in ('_ZTI20QOpenGLFunctions_2_1',
+                       '_ZN20QOpenGLFunctions_2_125initializeOpenGLFunctionsEv'):
+            with patch.object(runtime.subprocess, 'check_output', return_value=symbol):
+                with self.assertRaisesRegex(RuntimeError, 'Desktop OpenGL'):
+                    runtime.check_gles_symbols(Path('/test/engine'))
+        with patch.object(runtime.subprocess, 'check_output', return_value='QOpenGLFunctions'):
+            runtime.check_gles_symbols(Path('/test/engine'))
+
     def test_framework_filter_keeps_media_dependencies_bundled(self):
         for name in ['libQt5Core.so.5', 'libc.so.6', 'libstdc++.so.6', 'libEGL.so.1']:
             self.assertTrue(runtime.FRAMEWORK.match(name), name)

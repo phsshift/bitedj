@@ -2127,9 +2127,14 @@ target_include_directories(MP3GuessEnc SYSTEM PUBLIC lib/mp3guessenc-0.27.4)
 target_link_libraries(mixxx-lib PRIVATE MP3GuessEnc)
 
 # OpenGL
-set(OpenGL_GL_PREFERENCE "GLVND")
-find_package(OpenGL REQUIRED)
-target_link_libraries(mixxx-lib PRIVATE OpenGL::GL)
+if(BITEDJ_UBUNTU_TOUCH)
+  find_library(BITEDJ_GLES_LIBRARY GLESv2 REQUIRED)
+  target_link_libraries(mixxx-lib PRIVATE ${BITEDJ_GLES_LIBRARY})
+else()
+  set(OpenGL_GL_PREFERENCE "GLVND")
+  find_package(OpenGL REQUIRED)
+  target_link_libraries(mixxx-lib PRIVATE OpenGL::GL)
+endif()
 
 # Ogg
 find_package(Ogg REQUIRED)
@@ -2186,6 +2191,14 @@ set(
     Widgets
     Xml
 )
+# Qt5's legacy OpenGL module requires desktop GL and is absent on Ubuntu Touch.
+# QOpenGLWindow and the GLES shader renderer use QtGui instead.
+if(BITEDJ_UBUNTU_TOUCH AND NOT QT6)
+  list(REMOVE_ITEM QT_COMPONENTS OpenGL)
+  if(NOT QOPENGL)
+    message(FATAL_ERROR "Ubuntu Touch requires the QOpenGLWindow renderer")
+  endif()
+endif()
 set(QT_EXTRA_COMPONENTS "")
 if(QT6)
   find_package(QT 6.2 NAMES Qt6 COMPONENTS Core REQUIRED)
@@ -2204,6 +2217,19 @@ find_package(Qt${QT_VERSION_MAJOR}
     ${QT_EXTRA_COMPONENTS}
   REQUIRED
 )
+if(BITEDJ_UBUNTU_TOUCH)
+  include(CheckCXXSourceCompiles)
+  set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Gui)
+  check_cxx_source_compiles("#include <QtGui/qopengl.h>
+#ifndef QT_OPENGL_ES_2
+#error Ubuntu Touch requires the Qt OpenGL ES development variant
+#endif
+int main() { return 0; }" BITEDJ_QT_HAS_GLES)
+  unset(CMAKE_REQUIRED_LIBRARIES)
+  if(NOT BITEDJ_QT_HAS_GLES)
+    message(FATAL_ERROR "Use qtbase5-gles-dev for the Ubuntu Touch build")
+  endif()
+endif()
 # PUBLIC is required below to find included headers
 foreach(COMPONENT ${QT_COMPONENTS})
   target_link_libraries(mixxx-lib PUBLIC Qt${QT_VERSION_MAJOR}::${COMPONENT})
