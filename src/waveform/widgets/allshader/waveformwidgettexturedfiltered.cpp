@@ -1,3 +1,7 @@
+#include <QtGui/qopengl.h>
+
+// This optional renderer uses desktop display lists and immediate-mode GL.
+#if !defined(QT_OPENGL_ES_2)
 #include "waveform/widgets/allshader/waveformwidgettexturedfiltered.h"
 
 #include "waveform/renderers/allshader/waveformrenderbackground.h"
@@ -34,3 +38,5 @@ void WaveformWidgetTexturedFiltered::paintEvent(QPaintEvent* event) {
 }
 
 } // namespace allshader
+
+#endif // !QT_OPENGL_ES_2

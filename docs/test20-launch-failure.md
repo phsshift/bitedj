@@ -23,3 +23,15 @@ Reference: https://packages.ubuntu.com/noble/qtbase5-gles-dev
 Local packaging checks: 11 PASS. New C++/SDK build: NOT TESTED until CI runs.
 Do not install desktop Qt over the phone's existing framework or modify audio.
 GUI, playback and MOTU: NOT TESTED. Native visual failures remain unresolved.
+
+## GLES compilation follow-up (run 42382026217)
+SDK GLES packages and configuration check PASS; compilation FAIL only in
+allshader/waveformrenderertextured.cpp at desktop glBegin/display-list/matrix
+calls. No Click was created. The optional textured waveform implementation is
+not GLES compatible despite its previous useOpenGles() advertisement.
+Guard its renderer and three wrappers on GLES, omit those three modes from the
+factory's available choices, and report useOpenGles=false. Regular RGB, filtered,
+stacked, HSV, simple and LRRGB shader waveform implementations remain available.
+No waveform drawing is replaced with a blank implementation; the existing
+factory maps saved desktop texture modes to corresponding GLES shader modes. Desktop keeps the
+textured implementations. New C++ compile result awaits the replacement CI run.

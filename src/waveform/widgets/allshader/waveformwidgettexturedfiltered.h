@@ -1,5 +1,10 @@
 #pragma once
 
+#include <QtGui/qopengl.h>
+
+// This optional renderer uses desktop display lists and immediate-mode GL.
+#if !defined(QT_OPENGL_ES_2)
+
 #include "util/class.h"
 #include "waveform/renderers/allshader/waveformrenderertextured.h"
 #include "waveform/widgets/allshader/waveformwidget.h"
@@ -24,7 +29,7 @@ class allshader::WaveformWidgetTexturedFiltered final : public allshader::Wavefo
         return true;
     }
     static constexpr bool useOpenGles() {
-        return true;
+        return false;
     }
     static constexpr bool useOpenGLShaders() {
         return true;
@@ -46,3 +51,5 @@ class allshader::WaveformWidgetTexturedFiltered final : public allshader::Wavefo
 
     DISALLOW_COPY_AND_ASSIGN(WaveformWidgetTexturedFiltered);
 };
+
+#endif // !QT_OPENGL_ES_2
