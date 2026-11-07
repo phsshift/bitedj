@@ -34,6 +34,12 @@ for family in ('DejaVu Sans', 'Liberation Sans', 'Noto Sans'):
     env = dict(os.environ, FONTCONFIG_FILE=str(config))
     match = subprocess.check_output(
         ['fc-match', '-f', '%{family}\n', 'Inter'], env=env, text=True).strip()
+    if family not in (name.strip() for name in match.split(',')):
+        results.append({'requested': family, 'resolved': match,
+                        'exit_code': 'font-unavailable'})
+        (out / 'results.json').write_text(json.dumps(results, indent=2) + '\\n')
+        print(json.dumps(results[-1]), flush=True)
+        continue
     with (out / f'{tag}.log').open('w') as log:
         try:
             result = subprocess.run(

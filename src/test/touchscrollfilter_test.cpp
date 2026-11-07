@@ -53,6 +53,8 @@ class TouchScrollFilterTest : public testing::Test {
         m_view.setSelectionBehavior(QAbstractItemView::SelectRows);
         // Like WLibraryTableView, where a drag would otherwise select rows
         m_view.setSelectionMode(QAbstractItemView::ExtendedSelection);
+        // Qt5 styles can impose a minimum taller than this fixed fixture.
+        m_view.verticalHeader()->setMinimumSectionSize(kRowHeight);
         m_view.verticalHeader()->setDefaultSectionSize(kRowHeight);
         m_view.verticalHeader()->hide();
         m_view.horizontalHeader()->hide();
@@ -60,6 +62,7 @@ class TouchScrollFilterTest : public testing::Test {
         m_view.show();
         QCoreApplication::processEvents();
 
+        ASSERT_EQ(kRowHeight, m_view.rowHeight(0));
         TouchScrollFilter::install(&m_view);
     }
 

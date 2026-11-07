@@ -7,7 +7,7 @@ if [[ "${GITHUB_ACTIONS:-}" != true || "${RUNNER_ENVIRONMENT:-}" != github-hoste
 fi
 mkdir -p reports
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils libasound2-plugins alsa-utils fonts-noto-cjk fonts-inter apparmor
+sudo apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils libasound2-plugins alsa-utils fonts-noto-cjk fonts-noto-core fonts-liberation fonts-inter apparmor
 
 # Canonical's per-executable userns allowance, not a global sysctl change:
 # https://documentation.ubuntu.com/release-notes/24.04/

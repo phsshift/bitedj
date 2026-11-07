@@ -5,6 +5,8 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QFileInfo>
+#include <QFontInfo>
+#include <QJsonArray>
 #include <QHash>
 #include <QImage>
 #include <QJsonDocument>
@@ -638,6 +640,32 @@ bool Runner::runSnapshot(const QJsonObject& step) {
     const QDir outDir(m_options.outDir);
     const QString actualPath = outDir.absoluteFilePath(name + QStringLiteral(".png"));
     actual.save(actualPath);
+
+    // Record what Qt actually renders; Fontconfig alone can hide fallback.
+    QJsonArray widgetFonts;
+    for (const QWidget* widget : m_pMainWindow->findChildren<QWidget*>()) {
+        if (!widget->isVisible()) {
+            continue;
+        }
+        const QFont font = widget->font();
+        const QFontInfo resolved(font);
+        const QRect geometry(widget->mapTo(m_pMainWindow, QPoint()), widget->size());
+        widgetFonts.append(QJsonObject{
+                {QStringLiteral("class"), QString::fromLatin1(widget->metaObject()->className())},
+                {QStringLiteral("object"), widget->objectName()},
+                {QStringLiteral("requested"), font.family()},
+                {QStringLiteral("resolved"), resolved.family()},
+                {QStringLiteral("pixelSize"), resolved.pixelSize()},
+                {QStringLiteral("weight"), static_cast<int>(resolved.weight())},
+                {QStringLiteral("x"), geometry.x()},
+                {QStringLiteral("y"), geometry.y()},
+                {QStringLiteral("width"), geometry.width()},
+                {QStringLiteral("height"), geometry.height()}});
+    }
+    QFile fontsFile(outDir.absoluteFilePath(name + QStringLiteral(".fonts.json")));
+    if (fontsFile.open(QIODevice::WriteOnly)) {
+        fontsFile.write(QJsonDocument(widgetFonts).toJson());
+    }
 
     const QString goldenPath = m_scenario.goldenPath(name);
     if (m_options.updateGolden) {
