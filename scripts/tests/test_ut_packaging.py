@@ -64,7 +64,8 @@ class ClickContentsValidation(unittest.TestCase):
         manifest = {'name': 'bitedj.phsshift', 'version': '0.1.0-test.1', 'architecture': 'arm64',
                     'framework': 'ubuntu-touch-24.04-2.x',
                     'hooks': {'bitedj': {'desktop': 'bitedj.desktop', 'apparmor': 'bitedj.apparmor'}}}
-        (self.stage / 'manifest.json').write_text(json.dumps(manifest))
+        (self.stage / 'DEBIAN').mkdir()
+        (self.stage / 'DEBIAN/manifest').write_text(json.dumps(manifest))
         policy = {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}
         (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
         for name in ['bitedj.desktop', 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png', 'LICENSE',
@@ -80,7 +81,7 @@ class ClickContentsValidation(unittest.TestCase):
             shutil.copy2(sys.executable, path)
         (self.stage / 'build-provenance.json').write_text(json.dumps({'commit': 'abc123'}))
         control = self.stage / 'DEBIAN/control'
-        control.parent.mkdir()
+        control.parent.mkdir(exist_ok=True)
         control.write_text('Package: test-fixture\nVersion: 1\nArchitecture: arm64\nMaintainer: Test <test@example.invalid>\nDescription: temporary validation fixture\n')
 
     def package(self):

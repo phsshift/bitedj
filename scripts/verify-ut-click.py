@@ -21,7 +21,10 @@ def verify(build, reports):
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)
         subprocess.run(['dpkg-deb', '--extract', str(package), str(root)], check=True)
-        manifest = json.loads((root / 'manifest.json').read_text())
+        # Click stores its manifest in the control archive, outside the payload.
+        control = root / 'DEBIAN'
+        subprocess.run(['dpkg-deb', '--control', str(package), str(control)], check=True)
+        manifest = json.loads((control / 'manifest').read_text())
         if manifest['architecture'] != 'arm64' or manifest['framework'] != 'ubuntu-touch-24.04-2.x':
             raise RuntimeError('Incorrect package target')
         hooks = manifest['hooks']['bitedj']
