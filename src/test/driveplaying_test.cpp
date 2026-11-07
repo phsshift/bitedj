@@ -247,7 +247,7 @@ TEST_F(DrivePlayingTest, LoadingAnotherDrivesTrackIntoARunningDeckMovesTheFlag) 
 }
 
 TEST_F(DrivePlayingTest, DrivesPlayingReturnsOneFlagPerRequestedMount) {
-    EXPECT_EQ(4, SystemSettings::drivesPlaying({}, QList<QStringList>(4)).size());
+    EXPECT_EQ(4, SystemSettings::drivesPlaying({}, QList<QStringList>{QStringList{}, QStringList{}, QStringList{}, QStringList{}}).size());
     EXPECT_TRUE(SystemSettings::drivesPlaying({}, QList<QStringList>()).isEmpty());
 }
 

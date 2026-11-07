@@ -4,6 +4,7 @@
 
 #include <QByteArray>
 #include <QDir>
+#include <QVector>
 #include <QFile>
 #include <QStorageInfo>
 #include <QTemporaryDir>
@@ -476,7 +477,7 @@ mixxx::BeatsPointer readGrid(const QByteArray& anlzBytes) {
 // per beat chasing 491/492 ms intervals.
 TEST(RekordboxBeatGridTest, RoundedConstantGridKeepsExactTempo) {
     const auto pBeats = readGrid(anlzWithBeatGrid(
-            roundedBeatTimes(1000, 122, 64), QList<uint16_t>(64, 12200)));
+            roundedBeatTimes(1000, 122, 64), QVector<uint16_t>(64, 12200).toList()));
     ASSERT_TRUE(pBeats);
     EXPECT_TRUE(pBeats->hasConstantTempo());
     EXPECT_DOUBLE_EQ(122.0, pBeats->getLastMarkerBpm().value());
@@ -495,8 +496,8 @@ TEST(RekordboxBeatGridTest, RoundedConstantGridKeepsExactTempo) {
 TEST(RekordboxBeatGridTest, TempoChangeKeepsBeatPositions) {
     QList<uint32_t> times = roundedBeatTimes(1000, 120, 8);
     times << roundedBeatTimes(times.last() + 60000.0 / 128, 128, 8);
-    QList<uint16_t> tempos(8, 12000);
-    tempos << QList<uint16_t>(8, 12800);
+    QList<uint16_t> tempos = QVector<uint16_t>(8, 12000).toList();
+    tempos << QVector<uint16_t>(8, 12800).toList();
     const auto pBeats = readGrid(anlzWithBeatGrid(times, tempos));
     ASSERT_TRUE(pBeats);
     EXPECT_FALSE(pBeats->hasConstantTempo());
@@ -507,7 +508,7 @@ TEST(RekordboxBeatGridTest, TempoChangeKeepsBeatPositions) {
 TEST(RekordboxBeatGridTest, OffGridBeatKeepsBeatPositions) {
     QList<uint32_t> times = roundedBeatTimes(1000, 120, 16);
     times[9] += 5;
-    const auto pBeats = readGrid(anlzWithBeatGrid(times, QList<uint16_t>(16, 12000)));
+    const auto pBeats = readGrid(anlzWithBeatGrid(times, QVector<uint16_t>(16, 12000).toList()));
     ASSERT_TRUE(pBeats);
     EXPECT_FALSE(pBeats->hasConstantTempo());
 }

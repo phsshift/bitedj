@@ -182,8 +182,13 @@ int main(int argc, char * argv[]) {
     // than InheritPriority — every start() of a worker doing real work must
     // therefore pass one, and the global thread pool (QtConcurrent: cover
     // art, Rekordbox/Serato parsing) is capped below.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     mixxx::promoteCurrentThreadToRealtime(mixxx::kRtPrioMainThread, "Main");
     QThreadPool::globalInstance()->setThreadPriority(QThread::NormalPriority);
+#else
+    // Older Qt cannot set pool worker priorities. Keep the creating thread
+    // under normal scheduling so workers cannot inherit SCHED_FIFO.
+#endif
 
     // These need to be set early on (not sure how early) in order to trigger
     // logic in the OS X appstore support patch from QTBUG-16549.

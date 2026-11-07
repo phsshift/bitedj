@@ -5,6 +5,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QVector>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QStorageInfo>
@@ -525,7 +526,7 @@ TEST_F(SamplerDriveTest, APlayingSlotKeepsItsSampleUntilItStops) {
     // given is the one the slot has been promised, empty.
     QStringList storedB;
     if (FsSamplerBankStore::readBank(kUsbB, 1, kSlots, &storedB)) {
-        EXPECT_EQ(QStringList(kSlots, QString()), storedB);
+        EXPECT_EQ(QVector<QString>(kSlots).toList(), storedB);
     }
 
     ControlObject::set(playKey, 0.0);

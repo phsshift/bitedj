@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <QDir>
+#include <QVector>
 #include <QFile>
 #include <QStorageInfo>
 #include <QStringList>
@@ -97,7 +98,7 @@ TEST_F(FsSamplerBankStoreTest, DriveLocalPathsFollowTheMountPoint) {
 // with the same gap rather than closing up.
 TEST_F(FsSamplerBankStoreTest, KeepsEmptySlotsInPlace) {
     const QString root = QStringLiteral("/mnt/stick");
-    QStringList bank(kSlots, QString());
+    QStringList bank = QVector<QString>(kSlots).toList();
     bank[0] = QStringLiteral("/mnt/stick/a.wav");
     bank[3] = QStringLiteral("/mnt/stick/b.wav");
 
@@ -186,7 +187,7 @@ TEST_F(FsSamplerBankStoreTest, WritesAndReadsBackFromDrive) {
 
     // A bank the DJ emptied is stored in its own right, and must not read back
     // as "no bank" — that would leave the row loaded instead of clearing it.
-    const QStringList empty(kSlots, QString());
+    const QStringList empty = QVector<QString>(kSlots).toList();
     ASSERT_TRUE(FsSamplerBankStore::writeBank(kFakeUsb, 1, empty));
     ASSERT_TRUE(FsSamplerBankStore::readBank(kFakeUsb, 1, kSlots, &readBack));
     EXPECT_EQ(empty, readBack);
@@ -233,9 +234,9 @@ TEST_F(FsSamplerBankStoreTest, RefusesMountPointsThatAreNotThere) {
     EXPECT_FALSE(FsSamplerBankStore::writeBank(
             QStringLiteral("/mnt/definitely-not-mounted"),
             1,
-            QStringList(kSlots, QString())));
+            QVector<QString>(kSlots).toList()));
     // And a directory that merely sits under a removable root belongs to the
     // filesystem it is a folder on, not to a drive of its own.
     EXPECT_FALSE(FsSamplerBankStore::writeBank(
-            getTestDir().absolutePath(), 1, QStringList(kSlots, QString())));
+            getTestDir().absolutePath(), 1, QVector<QString>(kSlots).toList()));
 }

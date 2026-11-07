@@ -216,7 +216,12 @@ class SettingsGeneralLayoutTest : public MixxxTest,
         // pins to DejaVu Sans. A dev machine may well resolve both to
         // something else (Noto Sans, typically), with different widths, and
         // the widths are the whole point here.
-        if (!QFontDatabase::families().contains(kDeviceFont)) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        const QStringList installedFamilies = QFontDatabase::families();
+#else
+        const QStringList installedFamilies = QFontDatabase().families();
+#endif
+        if (!installedFamilies.contains(kDeviceFont)) {
             GTEST_SKIP() << kDeviceFont.toStdString()
                          << " is not installed; the layout would not be the device's";
         }
