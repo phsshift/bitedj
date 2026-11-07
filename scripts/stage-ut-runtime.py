@@ -49,7 +49,15 @@ def stage(source, install, reports):
     bridge = plugins / 'libasound_module_pcm_pulse.so'
     if not bridge.is_file():
         raise RuntimeError('ALSA PulseAudio plugin missing from SDK')
-    todo = [binary]
+    # The standard Click profile denies execution of /usr/bin/mkdir.
+    # Ship the SDK's ARM64 helper and audit its runtime like the engine.
+    mkdir = install / 'usr/bin/mkdir'
+    shutil.copy2('/usr/bin/mkdir', mkdir)
+    aarch64(mkdir)
+    license_dir = install / 'usr/share/doc/coreutils'
+    license_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2('/usr/share/doc/coreutils/copyright', license_dir / 'copyright')
+    todo = [binary, mkdir]
     for name in ('libasound_module_pcm_pulse.so', 'libasound_module_ctl_pulse.so'):
         src = plugins / name
         aarch64(src)

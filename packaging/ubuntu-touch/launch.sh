@@ -1,9 +1,14 @@
 #!/bin/sh
 set -eu
-app_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# Click confinement permits packaged executables, not system coreutils.
+case "$0" in
+    */*) launcher_dir=${0%/*} ;;
+    *) launcher_dir=. ;;
+esac
+app_root=$(CDPATH= cd -- "$launcher_dir" && pwd)
 app_config="${XDG_CONFIG_HOME:-$HOME/.config}/bitedj.phsshift"
 app_data="${XDG_DATA_HOME:-$HOME/.local/share}/bitedj.phsshift"
-mkdir -p "$app_config" "$app_data"
+"$app_root/usr/bin/mkdir" -p "$app_config" "$app_data"
 export LD_LIBRARY_PATH="$app_root/lib/aarch64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export ALSA_CONFIG_PATH="$app_root/alsa.conf"
 export ALSA_PLUGIN_DIR="$app_root/lib/aarch64-linux-gnu/alsa-lib"

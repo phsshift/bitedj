@@ -32,7 +32,8 @@ def verify(build, reports):
         if policy != {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}:
             raise RuntimeError('Unexpected package permissions')
         required = [hooks['desktop'], 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png',
-                    'LICENSE', 'build-provenance.json', 'usr/bin/mixxx',
+                    'LICENSE', 'build-provenance.json', 'usr/bin/mixxx', 'usr/bin/mkdir',
+                    'usr/share/doc/coreutils/copyright',
                     'usr/share/mixxx/skins/BiteDJ/skin.xml',
                     'lib/aarch64-linux-gnu/alsa-lib/libasound_module_pcm_pulse.so',
                     'lib/aarch64-linux-gnu/alsa-lib/libasound_module_ctl_pulse.so']
@@ -40,6 +41,7 @@ def verify(build, reports):
             if not (root / name).is_file() or not (root / name).stat().st_size:
                 raise RuntimeError(f'Missing package file: {name}')
         runtime.aarch64(root / 'usr/bin/mixxx')
+        runtime.aarch64(root / 'usr/bin/mkdir')
         if list(root.rglob('libQt*.so*')) or list(root.rglob('libqpa-*.so')):
             raise RuntimeError('Package must use framework Qt and platform integration')
         for library in (root / 'lib').rglob('*.so*'):

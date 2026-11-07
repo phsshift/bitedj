@@ -69,12 +69,12 @@ class ClickContentsValidation(unittest.TestCase):
         policy = {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}
         (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
         for name in ['bitedj.desktop', 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png', 'LICENSE',
-                     'usr/share/mixxx/skins/BiteDJ/skin.xml']:
+                     'usr/share/mixxx/skins/BiteDJ/skin.xml', 'usr/share/doc/coreutils/copyright']:
             path = self.stage / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text('test fixture\n')
         # Real ELF fixture; used only for package validation, never installed.
-        for name in ['usr/bin/mixxx', 'lib/aarch64-linux-gnu/alsa-lib/libasound_module_pcm_pulse.so',
+        for name in ['usr/bin/mixxx', 'usr/bin/mkdir', 'lib/aarch64-linux-gnu/alsa-lib/libasound_module_pcm_pulse.so',
                      'lib/aarch64-linux-gnu/alsa-lib/libasound_module_ctl_pulse.so']:
             path = self.stage / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,6 +134,7 @@ class LauncherContract(unittest.TestCase):
             app = root / 'app with spaces'
             (app / 'usr/bin').mkdir(parents=True)
             shutil.copy2(SCRIPTS.parent / 'packaging/ubuntu-touch/launch.sh', app / 'launch.sh')
+            shutil.copy2(shutil.which('mkdir'), app / 'usr/bin/mkdir')
             engine = app / 'usr/bin/mixxx'
             engine.write_text('#!/bin/sh\nprintf "%s\\n" "$ALSA_CONFIG_PATH" "$ALSA_PLUGIN_DIR" "$PULSE_SERVER" "$QT_QPA_PLATFORM" "$QT_IM_MODULE" "$@"\n')
             engine.chmod(0o755)
