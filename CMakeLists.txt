@@ -2757,6 +2757,15 @@ if(BULK)
       -Wl,--wrap=libusb_exit
       -Wl,--wrap=libusb_free_device_list
     )
+    # This source is added after the main gtest_add_tests() scan above.
+    gtest_add_tests(
+      TARGET mixxx-test
+      SOURCES src/test/bulkenumeratorfailure_test.cpp
+      EXTRA_ARGS --logLevel info
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      TEST_LIST bulk_failure_tests
+    )
+    set_tests_properties(${bulk_failure_tests} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
   endif()
 endif()
 
