@@ -149,6 +149,28 @@ bool OpenGLWindow::event(QEvent* pEv) {
             return result;
         }
 
+#ifdef BITEDJ_UBUNTU_TOUCH
+        // A child QOpenGLWidget receives its own lifecycle, layout and GL
+        // events. Forwarding those to its owner re-enters the parent's
+        // show/resize handlers. Only user input belongs to the owner.
+        switch (t) {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseMove:
+        case QEvent::Wheel:
+        case QEvent::KeyPress:
+        case QEvent::KeyRelease:
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
+        case QEvent::TouchCancel:
+        case QEvent::ContextMenu:
+            break;
+        default:
+            return result;
+        }
+#endif
         // Send all remaining events to the widget that owns the window
         // container widget that contains this QOpenGLWindow. With this mouse
         // events, keyboard events, etc all arrive as intended, including the

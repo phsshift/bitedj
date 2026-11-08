@@ -239,7 +239,21 @@ void MixxxMainWindow::initializeQOpenGL() {
             SharedGLContext::setWidget(widget);
             // When the widget's QOpenGLWindow has been initialized, we continue
             // with the actual initialization
+#ifdef BITEDJ_UBUNTU_TOUCH
+            // QOpenGLWidget emits this from initializeGL, before its resize
+            // has created the backing FBO. Building the skin here processes
+            // events and can repaint that half-initialized widget.
+            connect(widget, &WInitialGLWidget::onInitialized,
+                    this, [this, initialized = false]() mutable {
+                        if (initialized) {
+                            return;
+                        }
+                        initialized = true;
+                        initialize();
+                    }, Qt::QueuedConnection);
+#else
             connect(widget, &WInitialGLWidget::onInitialized, this, &MixxxMainWindow::initialize);
+#endif
             widget->show();
             return;
         }
