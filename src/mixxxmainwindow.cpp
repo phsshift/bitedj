@@ -13,6 +13,7 @@
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QTextEdit>
+#include <QTimer>
 #include <QUrl>
 
 #ifdef __LINUX__
@@ -550,6 +551,35 @@ void MixxxMainWindow::initialize() {
         qDebug("Enabling Auto DJ from CLI flag.");
         ControlObject::set(ConfigKey("[AutoDJ]", "enabled"), 1.0);
     }
+#ifdef BITEDJ_UBUNTU_TOUCH
+    if (qEnvironmentVariableIsSet("BITEDJ_AUDIO_DIAGNOSTICS")) {
+        auto* audioDiagnostics = new QTimer(this);
+        connect(audioDiagnostics, &QTimer::timeout, this, [] {
+            const auto value = [](const QString& group, const char* item) {
+                return ControlObject::get(ConfigKey(group, QString::fromLatin1(item)));
+            };
+            const QString master = QStringLiteral("[Master]");
+            qWarning() << "AudioDiagnostics master"
+                       << "enabled" << value(master, "enabled")
+                       << "gain" << value(master, "gain")
+                       << "crossfader" << value(master, "crossfader")
+                       << "vu" << value(master, "VuMeter");
+            for (int deck = 1; deck <= 2; ++deck) {
+                const QString group = PlayerManager::groupForDeck(deck - 1);
+                qWarning() << "AudioDiagnostics" << group
+                           << "loaded" << value(group, "track_loaded")
+                           << "play" << value(group, "play")
+                           << "position" << value(group, "playposition")
+                           << "volume" << value(group, "volume")
+                           << "pregain" << value(group, "pregain")
+                           << "mute" << value(group, "mute")
+                           << "main_mix" << value(group, "main_mix")
+                           << "vu" << value(group, "VuMeter");
+            }
+        });
+        audioDiagnostics->start(2000);
+    }
+#endif
 }
 
 MixxxMainWindow::~MixxxMainWindow() {
