@@ -3,6 +3,41 @@
     <SizePolicy>me,e</SizePolicy>
     <Layout>vertical</Layout>
     <Children>
+      <!-- Touch targets use the existing loader and its playing-deck guards. -->
+      <WidgetGroup>
+        <ObjectName>TouchTrackLoadRow</ObjectName>
+        <Layout>horizontal</Layout>
+        <Size>0me,44f</Size>
+        <Children>
+          <PushButton>
+            <ObjectName>TouchLoadDeck1</ObjectName>
+            <Size>140me,44f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>Load Deck 1</Text></State>
+            <LeftClickIsPushButton>true</LeftClickIsPushButton>
+            <Connection>
+              <ConfigKey>[Channel1],LoadSelectedTrack</ConfigKey>
+              <EmitOnDownPress>true</EmitOnDownPress>
+            </Connection>
+          </PushButton>
+          <PushButton>
+            <ObjectName>TouchLoadDeck2</ObjectName>
+            <Size>140me,44f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>Load Deck 2</Text></State>
+            <LeftClickIsPushButton>true</LeftClickIsPushButton>
+            <Connection>
+              <ConfigKey>[Channel2],LoadSelectedTrack</ConfigKey>
+              <EmitOnDownPress>true</EmitOnDownPress>
+            </Connection>
+          </PushButton>
+        </Children>
+        <Connection>
+          <ConfigKey>[Sidebar],sidebar_visible</ConfigKey>
+          <BindProperty>visible</BindProperty>
+          <Transform><Not/></Transform>
+        </Connection>
+      </WidgetGroup>
       <WidgetGroup>
         <ObjectName>LibraryWrapper</ObjectName>
         <Layout>vertical</Layout>
