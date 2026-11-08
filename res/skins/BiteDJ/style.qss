@@ -2055,3 +2055,27 @@ WBeatSpinBox::up-button {
 #SettingsDangerButton[pressed="true"] {
   background-color: #7a2622;
 }
+
+/* Phone safe area: keep controls clear of Lomiri's top gesture and camera. */
+#SkinContainer {
+  qproperty-layoutContentsMargins: rect(36 40 36 0);
+}
+/* Triple the browser's original 18px table and 24px sidebar text. */
+#LibraryWrapper QTableView,
+#LibraryWrapper WLibraryTextBrowser,
+#LibraryWrapper WTrackTableViewHeader::section {
+  font-size: 54px;
+}
+#LibraryWrapper WLibrarySidebar {
+  font-size: 72px;
+}
+#LibraryWrapper QTreeView::item {
+  min-height: 84px;
+}
+#LibraryWrapper QHeaderView {
+  qproperty-minimumSectionSize: 72;
+  qproperty-defaultSectionSize: 72;
+}
+#SearchBox {
+  font-size: 48px;
+}

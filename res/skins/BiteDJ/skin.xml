@@ -98,7 +98,7 @@
 						<WidgetGroup>
 							<ObjectName>TopbarStack</ObjectName>
 							<Layout>stacked</Layout>
-							<Size>0me,60f</Size>
+							<Size>0me,72f</Size>
 							<Children>
 								<NotificationStrip>
 									<ObjectName>NotificationStrip</ObjectName>
