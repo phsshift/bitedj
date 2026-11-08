@@ -89,6 +89,15 @@
         </Children>
       </WidgetGroup>
 
+      <PushButton>
+        <ObjectName>TouchEqVisibility</ObjectName>
+        <Size>0me,44f</Size>
+        <NumberStates>2</NumberStates>
+        <State><Number>0</Number><Text>Hide EQ (external mixer)</Text></State>
+        <State><Number>1</Number><Text>Show EQ</Text></State>
+        <Connection><ConfigKey persist="true">[Skin],hide_eq</ConfigKey></Connection>
+      </PushButton>
+      <WidgetGroup><ObjectName>OptionalMasterEQ</ObjectName><Layout>vertical</Layout><SizePolicy>me,max</SizePolicy><Children>
       <!-- Master output EQ. EffectsManager::setup() hardwires the 8-band
            Graphic EQ into [OutputEffectRack_[Master]_Effect1], so each
            knob is one band's gain in dB. -->
@@ -254,6 +263,7 @@
         </Children>
       </WidgetGroup>
 
+</Children><Connection><ConfigKey>[Skin],hide_eq</ConfigKey><BindProperty>visible</BindProperty><Transform><Not/></Transform></Connection></WidgetGroup>
       <WidgetGroup>
         <ObjectName>SettingsSpacer</ObjectName>
         <Size>0me,0me</Size>

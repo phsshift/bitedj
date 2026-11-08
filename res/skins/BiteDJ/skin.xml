@@ -17,6 +17,7 @@
 			<attribute persist="true" config_key="[Skin],show_library_coverart">0</attribute>
 			<attribute config_key="[Sidebar],sidebar_visible">1</attribute>
 			<attribute config_key="[Skin],show_related">0</attribute>
+			<attribute persist="true" config_key="[Skin],hide_eq">0</attribute>
 		</attributes>
 	</manifest>
 
