@@ -75,7 +75,7 @@ class ClickContentsValidation(unittest.TestCase):
                     'hooks': {'bitedj': {'desktop': 'bitedj.desktop', 'apparmor': 'bitedj.apparmor'}}}
         (self.stage / 'DEBIAN').mkdir()
         (self.stage / 'DEBIAN/manifest').write_text(json.dumps(manifest))
-        policy = {'policy_groups': ['audio', 'keep-display-on'], 'policy_version': 2404.2}
+        policy = {'policy_groups': ['audio', 'keep-display-on', 'music_files_read'], 'policy_version': 2404.2}
         (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
         for name in ['bitedj.desktop', 'launch.sh', 'alsa.conf', 'fonts.conf', 'bitedj.png', 'LICENSE',
                      'usr/share/mixxx/skins/BiteDJ/skin.xml', 'usr/share/doc/coreutils/copyright']:
@@ -114,8 +114,8 @@ class ClickContentsValidation(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'Missing package file'):
             self.verify()
 
-    def test_reserved_music_permission_is_rejected(self):
-        policy = {'policy_groups': ['audio', 'music_files_read', 'keep-display-on'],
+    def test_unexpected_network_permission_is_rejected(self):
+        policy = {'policy_groups': ['audio', 'keep-display-on', 'music_files_read', 'networking'],
                   'policy_version': 2404.2}
         (self.stage / 'bitedj.apparmor').write_text(json.dumps(policy))
         self.package()

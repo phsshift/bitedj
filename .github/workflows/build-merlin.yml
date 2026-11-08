@@ -168,7 +168,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          clickable build --config packaging/ubuntu-touch/clickable.yaml --arch arm64 2>&1 | tee reports-ut/clickable.log
+          clickable build --config packaging/ubuntu-touch/clickable.yaml --arch arm64 --accept-review-errors 2>&1 | tee reports-ut/clickable.log
+          python3 scripts/check-ut-review.py reports-ut/clickable.log
           python3 scripts/verify-ut-click.py build reports-ut
       - name: Save SDK compiler cache
         if: ${{ !cancelled() && hashFiles('.ccache-ut-sdk/**') != '' }}
