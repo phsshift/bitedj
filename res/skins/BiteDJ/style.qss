@@ -2060,22 +2060,28 @@ WBeatSpinBox::up-button {
 #SkinContainer {
   qproperty-layoutContentsMargins: rect(36 40 36 0);
 }
-/* Triple the browser's original 18px table and 24px sidebar text. */
+/* Double the browser's original 18px table and 24px sidebar text. */
 #LibraryWrapper QTableView,
 #LibraryWrapper WLibraryTextBrowser,
 #LibraryWrapper WTrackTableViewHeader::section {
-  font-size: 54px;
+  font-size: 36px;
 }
 #LibraryWrapper WLibrarySidebar {
-  font-size: 72px;
-}
-#LibraryWrapper QTreeView::item {
-  min-height: 84px;
-}
-#LibraryWrapper QHeaderView {
-  qproperty-minimumSectionSize: 72;
-  qproperty-defaultSectionSize: 72;
-}
-#SearchBox {
   font-size: 48px;
 }
+#LibraryWrapper QTreeView::item {
+  min-height: 60px;
+}
+#LibraryWrapper QHeaderView {
+  qproperty-minimumSectionSize: 52;
+  qproperty-defaultSectionSize: 52;
+}
+#SearchBox {
+  font-size: 32px;
+}
+
+/* Explicit type sizes fit their allocated rows, independent of Qt's system font. */
+#TouchTransportRow WLabel, #TouchTransportRow WNumber, #TouchTransportRow WNumberDb { font-size: 14px; }
+#TouchTransportRow WPushButton { font-size: 16px; }
+#TouchMixerColumn WLabel { font-size: 12px; }
+#TouchLoadDeck1, #TouchLoadDeck2 { font-size: 24px; }

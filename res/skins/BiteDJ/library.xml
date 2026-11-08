@@ -7,11 +7,11 @@
       <WidgetGroup>
         <ObjectName>TouchTrackLoadRow</ObjectName>
         <Layout>horizontal</Layout>
-        <Size>0me,44f</Size>
+        <Size>0me,66f</Size>
         <Children>
           <PushButton>
             <ObjectName>TouchLoadDeck1</ObjectName>
-            <Size>140me,44f</Size>
+            <Size>210me,66f</Size>
             <NumberStates>1</NumberStates>
             <State><Number>0</Number><Text>Load Deck 1</Text></State>
             <LeftClickIsPushButton>true</LeftClickIsPushButton>
@@ -22,7 +22,7 @@
           </PushButton>
           <PushButton>
             <ObjectName>TouchLoadDeck2</ObjectName>
-            <Size>140me,44f</Size>
+            <Size>210me,66f</Size>
             <NumberStates>1</NumberStates>
             <State><Number>0</Number><Text>Load Deck 2</Text></State>
             <LeftClickIsPushButton>true</LeftClickIsPushButton>

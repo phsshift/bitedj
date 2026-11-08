@@ -8,15 +8,95 @@
         <ObjectName>Waveforms_Container</ObjectName>
         <Layout>horizontal</Layout>
         <Children>
-          <Template src="skin:waveforms.xml"></Template>
-          <Template src="skin:effects.xml"></Template>
+          <Template src="skin:waveforms.xml" />
+          <Template src="skin:effects.xml" />
         </Children>
       </WidgetGroup>
-
-      <WidgetGroup><ObjectName>TouchTransportRow</ObjectName><Layout>horizontal</Layout><Size>0me,128f</Size><Children><WidgetGroup><Layout>vertical</Layout><Size>0me,128f</Size><Children><Label><Text>Deck 1</Text><Size>0me,20f</Size><Alignment>center</Alignment></Label><Template src="skin:templates/touch_transport.xml"><SetVariable name="channel">1</SetVariable></Template></Children></WidgetGroup><WidgetGroup><Layout>vertical</Layout><Size>64f,128f</Size><Children><WidgetGroup><Layout>vertical</Layout><Size>40me,64f</Size><Children><Label><Text>Crossfade</Text><Size>0me,16f</Size><Alignment>center</Alignment></Label><KnobComposed><ObjectName>TouchMixerKnob</ObjectName><Size>0me,44f</Size><Knob scalemode="STRETCH_ASPECT">icons/knob.svg</Knob><MinAngle>-140</MinAngle><MaxAngle>140</MaxAngle><Connection><ConfigKey>[Master],crossfader</ConfigKey></Connection></KnobComposed></Children></WidgetGroup><WidgetGroup><Layout>vertical</Layout><Size>40me,64f</Size><Children><Label><Text>Master</Text><Size>0me,16f</Size><Alignment>center</Alignment></Label><KnobComposed><ObjectName>TouchMixerKnob</ObjectName><Size>0me,44f</Size><Knob scalemode="STRETCH_ASPECT">icons/knob.svg</Knob><MinAngle>-140</MinAngle><MaxAngle>140</MaxAngle><Connection><ConfigKey>[Master],gain</ConfigKey></Connection></KnobComposed></Children></WidgetGroup></Children></WidgetGroup><WidgetGroup><Layout>vertical</Layout><Size>0me,128f</Size><Children><Label><Text>Deck 2</Text><Size>0me,20f</Size><Alignment>center</Alignment></Label><Template src="skin:templates/touch_transport.xml"><SetVariable name="channel">2</SetVariable></Template></Children></WidgetGroup></Children></WidgetGroup>
-
-      <!-- Deck strips, or the cue drawer in their place. -->
-      <Template src="skin:cuepanel.xml"></Template>
+      <WidgetGroup>
+        <ObjectName>TouchTransportRow</ObjectName>
+        <Layout>horizontal</Layout>
+        <Size>0me,148f</Size>
+        <Children>
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <Size>0me,148f</Size>
+            <Children>
+              <Label>
+                <Text>Deck 1</Text>
+                <Size>0me,20f</Size>
+                <Alignment>center</Alignment>
+              </Label>
+              <Template src="skin:templates/touch_transport.xml">
+                <SetVariable name="channel">1</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <Size>96f,148f</Size>
+            <Children>
+              <WidgetGroup>
+                <Layout>vertical</Layout>
+                <Size>40me,64f</Size>
+                <Children>
+                  <Label>
+                    <Text>Crossfade</Text>
+                    <Size>0me,16f</Size>
+                    <Alignment>center</Alignment>
+                  </Label>
+                  <KnobComposed>
+                    <ObjectName>TouchMixerKnob</ObjectName>
+                    <Size>0me,44f</Size>
+                    <Knob scalemode="STRETCH_ASPECT">icons/knob.svg</Knob>
+                    <MinAngle>-140</MinAngle>
+                    <MaxAngle>140</MaxAngle>
+                    <Connection>
+                      <ConfigKey>[Master],crossfader</ConfigKey>
+                    </Connection>
+                  </KnobComposed>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <Layout>vertical</Layout>
+                <Size>40me,64f</Size>
+                <Children>
+                  <Label>
+                    <Text>Master</Text>
+                    <Size>0me,16f</Size>
+                    <Alignment>center</Alignment>
+                  </Label>
+                  <KnobComposed>
+                    <ObjectName>TouchMixerKnob</ObjectName>
+                    <Size>0me,44f</Size>
+                    <Knob scalemode="STRETCH_ASPECT">icons/knob.svg</Knob>
+                    <MinAngle>-140</MinAngle>
+                    <MaxAngle>140</MaxAngle>
+                    <Connection>
+                      <ConfigKey>[Master],gain</ConfigKey>
+                    </Connection>
+                  </KnobComposed>
+                </Children>
+              </WidgetGroup>
+            </Children>
+            <ObjectName>TouchMixerColumn</ObjectName>
+          </WidgetGroup>
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <Size>0me,148f</Size>
+            <Children>
+              <Label>
+                <Text>Deck 2</Text>
+                <Size>0me,20f</Size>
+                <Alignment>center</Alignment>
+              </Label>
+              <Template src="skin:templates/touch_transport.xml">
+                <SetVariable name="channel">2</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+        </Children>
+      </WidgetGroup>
+      <Template src="skin:cuepanel.xml" />
     </Children>
   </WidgetGroup>
 </Template>
